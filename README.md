@@ -2,10 +2,10 @@
 
 **Личный ассистент студента:** пары, задачи, привычки, деньги и AI-помощник — в одном красивом приложении. Работает в браузере на компьютере и ставится на iPhone как приложение.
 
-🔗 **Открыть демо:** https://ТВОЙ-НИК.github.io/polaris/
+🔗 **Открыть демо:** https://wrrxd.github.io/polaris/
 💬 **Связаться:** Telegram [@rolqm](https://t.me/rolqm)
 
-![Polaris на iPhone](screenshots/iphone.png)
+![Polaris на iPhone](iphone.png)
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Дизайн и анимации
 
-![Заставка Polaris](screenshots/intro.png)
+![Заставка Polaris](intro.png)
 
 - Тёмная тема «ночное небо»: живой звёздный фон, медленно вращается вокруг Полярной звезды
 - 3D-сфера из 3400 частиц: следует за курсором и перетекает в куб
@@ -30,8 +30,8 @@
 - Микроанимации: галочки с пружинкой и искрами, уведомления, проверка полей на лету, кнопка-загрузка, модальные окна
 - Уважает системную настройку «Уменьшить движение»
 
-![Главный экран](screenshots/desktop.png)
-![Вход](screenshots/login.png)
+![Главный экран](desktop.png)
+![Вход](login.png)
 
 ## Технологии
 
@@ -44,7 +44,7 @@
 ## Как запустить у себя
 
 ```bash
-git clone https://github.com/ТВОЙ-НИК/polaris.git
+git clone https://github.com/wrrxd/polaris.git
 cd polaris
 python3 -m http.server 8000
 ```
@@ -58,7 +58,7 @@ privacy.html           — политика конфиденциальности
 sw.js                  — service worker (офлайн-режим)
 manifest.webmanifest   — настройки установки на телефон
 icon-*.png             — иконки приложения
-screenshots/           — картинки для этого README
+*.png (скриншоты)      — картинки для этого README
 ```
 
 ## Конфиденциальность
