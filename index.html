@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#050817">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Polaris">
+<title>Polaris · My Assistant (демо)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ✦ ПАЛИТРА — меняешь здесь, меняется всё приложение */
+  --bg:#08090c;        /* фон страницы */
+  --bg-glow:#1a2540;   /* мягкое синее свечение сверху */
+  --card:rgba(12,15,24,.66);    /* карточки (полупрозрачные — сквозь них видно небо) */
+  --card-hi:rgba(20,25,38,.66); /* верх градиента карточки */
+  --field:#0b0c10;     /* поля ввода */
+  --tile:#0d0f14;      /* плитки, сообщения ИИ */
+  --tile-hi:#181c24;   /* плитка при наведении */
+  --sheet:#111318;     /* карточки в обзоре вкладок */
+  --sheet-hi:#191c23;  /* шапка карточки в обзоре */
+  --bubble:#1b2233;    /* твои сообщения в чате */
+  --accent:#e8ecf3;    /* главный акцент */
+  --accent2:#ffffff;   /* светлый акцент (текст, блик) */
+  --accent-rgb:200,212,235; /* тот же акцент числами — для прозрачности */
+  --on-accent:#0a0b0e; /* текст на залитой акцентом кнопке */
+  --tx:#f4f6fa;        /* основной текст */
+  --mu:#8a909c;        /* приглушённый текст */
+  --line:rgba(var(--accent-rgb),.2); /* линии и рамки */
+  --glass:rgba(14,16,20,.72);  /* стеклянная кнопка */
+  --scrim:rgba(4,5,7,.76);     /* затемнение под окнами */
+  --glow-rgb:96,140,255;       /* синее свечение в анимациях */
+  --toast:#22252c;             /* фон всплывающих уведомлений */
+  --sky:#050817;               /* цвет ночного неба (живой фон) */
+  /* ✦ ШРИФТ для часов и заголовков */
+  --font-display:Montserrat,system-ui,sans-serif;
+  --display-weight:200;
+  /* ✦ ШКАЛА ШРИФТОВ — от самого крупного к самому мелкому */
+  --fs-display:clamp(68px,17vw,132px); /* часы */
+  --fs-hero:clamp(34px,6vw,54px);      /* главная цифра (доход) */
+  --fs-title:20px;    /* заголовки карточек */
+  --fs-body:15px;     /* основной текст */
+  --fs-time:15px;     /* время в списках */
+  --fs-small:13px;    /* пояснения */
+  --fs-label:11px;    /* подписи КАПСОМ */
+  --track-tight:-0.02em;  /* крупный текст чуть «сжимаем» */
+  --track-label:0.12em;   /* мелкие подписи «разряжаем» */
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(1000px 500px at 80% -10%,var(--bg-glow) 0,transparent 60%),var(--bg);color:var(--tx);font:400 15px/1.55 Manrope,system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:1040px;margin:auto;padding:22px 16px 60px}
+h1,h2,.serif{font-family:var(--font-display);font-weight:var(--display-weight,500);margin:0}
+.shine{background:linear-gradient(100deg,var(--accent) 20%,var(--accent2) 45%,var(--accent) 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 7s ease-in-out infinite}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.clock{font-size:clamp(44px,9vw,76px);line-height:1;letter-spacing:.02em}.date{color:var(--mu);margin-top:4px}
+.card{background:linear-gradient(160deg,var(--card-hi),var(--card));border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.hero h2{font-size:clamp(30px,6vw,46px)}.hero small{color:var(--mu)}
+.bar{height:3px;background:rgba(var(--accent-rgb),.14);border-radius:3px;overflow:hidden;margin:14px 0}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:sheen 4s linear infinite;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{justify-content:space-between}
+input,select,textarea,button{font:inherit;color:var(--tx)}
+input,select,textarea{background:var(--field);border:1px solid var(--line);border-radius:9px;padding:10px 12px;min-width:0;transition:border-color .25s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+textarea{width:100%;min-height:90px;resize:vertical}
+button{cursor:pointer;background:transparent;border:1px solid var(--accent);color:var(--accent2);border-radius:9px;padding:9px 16px;transition:background .25s,color .25s,transform .15s}
+button:hover{background:var(--accent);color:var(--on-accent)}button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:24px 0 18px;overflow-x:auto}
+.tabs button{border:0;border-radius:0;color:var(--mu);padding:12px 16px;border-bottom:2px solid transparent;white-space:nowrap;background:none}
+.tabs button.on{color:var(--accent2);border-color:var(--accent)}.tabs button:hover{background:none;color:var(--accent2)}
+.pane{display:none}.pane.on{display:block}@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:760px){.g2{grid-template-columns:1fr}}
+h3{font:500 22px var(--font-display);margin:0 0 12px}
+.it{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.it:last-child{border:0}
+.it time{color:var(--accent);min-width:84px;font-size:13px}.it .m{color:var(--mu);font-size:13px}.it .g{flex:1}
+.it.done .g{color:var(--mu);opacity:.7}.x{border:0;color:var(--mu);padding:4px 8px}
+input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px}
+.fold{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.f{border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .3s,transform .3s,background .3s;background:var(--tile)}
+.f:hover,.f.on{border-color:var(--accent);transform:translateY(-2px);background:var(--tile-hi)}.f b{font:500 20px var(--font-display);display:block}.f span{color:var(--mu);font-size:13px}
+.empty{color:var(--mu);padding:8px 0}.num{font:500 30px var(--font-display);color:var(--accent2)}
+a{color:var(--accent2)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stats div{border:1px solid var(--line);border-radius:12px;padding:12px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.clock{display:flex;align-items:baseline;font-size:clamp(68px,17vw,132px)!important;line-height:.95}#sec{font-size:.28em;color:var(--mu);margin-left:.18em;font-family:Manrope,sans-serif;font-weight:400}
+.sub{font-size:20px;color:var(--mu)}.date{display:block;font-size:17px}.date::first-letter{text-transform:uppercase}.top .bar{margin:12px 0 6px;width:min(460px,100%)}
+.day{padding:10px 0;border-bottom:1px solid var(--line)}.day:last-child{border:0}.day.now{background:linear-gradient(90deg,rgba(var(--accent-rgb),.09),transparent);padding-left:10px;border-left:2px solid var(--accent)}.day b{font-size:19px}
+.bub{padding:10px 14px;border-radius:12px;margin:8px 0;max-width:88%;white-space:pre-wrap;border:1px solid var(--line)}.bub.u{margin-left:auto;background:var(--bubble)}.bub.a{background:var(--tile)}#ch{max-height:50vh;overflow-y:auto;margin-bottom:12px}
+button,.tabs button{min-height:44px}.x{min-width:44px}input[type=checkbox]{min-height:0}.m{color:var(--mu)}
+@media(max-width:760px){input,select,textarea{font-size:16px}.wrap{padding:16px 12px 70px}.tabs button{padding:12px 14px}}
+.tabs{position:relative}.tabs button.on{border-color:transparent}
+#ind{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:transform .55s cubic-bezier(.2,.8,.2,1),width .55s cubic-bezier(.2,.8,.2,1)}
+.pane.on>*,.pane.on .g2>*{animation:rise .65s cubic-bezier(.2,.8,.2,1) both}.pane.on>:nth-child(2),.pane.on .g2>:nth-child(2){animation-delay:.08s}.pane.on>:nth-child(3){animation-delay:.16s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.it time{min-width:104px}.sqs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.sq{min-width:54px;padding:0 6px;font-size:12px;color:var(--mu);border-color:var(--line)}
+.sq.p{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.sq.n,.sq.n:hover{background:#3a1a18;border-color:#a14a43;color:#f0b9b3}.sq:disabled{opacity:.3;cursor:default}
+.jb{padding:16px 0;border-bottom:1px solid var(--line)}.jb:last-child{border:0}
+.alert{border:1px solid var(--accent);border-radius:12px;padding:12px 16px;margin-bottom:16px;background:linear-gradient(90deg,rgba(var(--accent-rgb),.18),transparent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 26px rgba(var(--accent-rgb),.28)}}
+.pt{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:2px}.ptw{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ✦ Анимации: короткие, мягкие, без лишнего шума. При "уменьшить движение" в системе всё отключается (правило ниже уже есть). */
+.pane.on>:nth-child(4){animation-delay:.24s}.pane.on>:nth-child(5){animation-delay:.32s}.pane.on>:nth-child(6){animation-delay:.4s}
+.card{transition:border-color .35s}.card:hover{border-color:rgba(var(--accent-rgb),.4)}
+.it.flash{animation:flash .9s ease-out}
+@keyframes flash{0%{background:rgba(var(--glow-rgb),.16)}100%{background:transparent}}
+input[type=checkbox].pop{animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+.it.enter{animation:enter .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateX(-16px)}}
+.hero.glow{animation:glow 1.4s ease-out}
+/* ✦ Motion Prompt #007 Count-up · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#007
+   Цифры одной ширины, число прижато вправо, при «приземлении» — пружинка 1 + 0.07·e^(−7t)·cos(15t) и вспышка свечения. */
+#mny{display:inline-block;text-align:right;font-variant-numeric:tabular-nums;transform-origin:100% 70%}
+#mny.land{animation:land .6s linear,sheen 7s ease-in-out infinite}
+@keyframes land{0%{transform:scale(1.07);filter:drop-shadow(0 0 16px rgba(var(--glow-rgb),.95))}17%{transform:scale(1.0025)}33%{transform:scale(.983)}50%{transform:scale(.998)}67%{transform:scale(1.004)}100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(var(--glow-rgb),0))}}
+/* ✦ Motion Prompt #056 Toast notification · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#056
+   Въезжает справа 0.35 с (easeOutCubic), полоска-таймер тает 1.8 с линейно, уезжает 0.35 с (easeInOutCubic). */
+#toasts{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
+.toast{position:relative;display:flex;align-items:center;gap:10px;min-width:214px;max-width:min(340px,calc(100vw - 36px));padding:14px 16px 16px;border-radius:10px;background:var(--toast);border:1px solid var(--line);color:#fff;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.45);overflow:hidden;transform:translateX(calc(100% + 26px));transition:transform .35s cubic-bezier(.33,1,.68,1)}
+.toast.show{transform:none}
+.toast.hide{transform:translateX(calc(100% + 26px));transition-timing-function:cubic-bezier(.65,0,.35,1)}
+.toast i{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgb(var(--glow-rgb))}
+.toast .tb{position:absolute;left:10px;right:10px;bottom:0;height:3px;border-radius:3px;background:rgb(var(--glow-rgb));transform-origin:left}
+.toast.show .tb{animation:tbar 1.8s linear .35s both}
+@keyframes tbar{to{transform:scaleX(0)}}
+/* ✦ Стекло: карточки слегка размывают небо за собой */
+.card{-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block}
+
+/* ✦ «Выполнено»: отскок + галочка рисуется + искры.
+   Отскок — пружина 1−e^(−7t)·cos(14t) (как чип в Motion Prompt #007),
+   галочка — рисование линии (Motion Prompt #004 Line draw),
+   искры — разлёт частиц (Motion Prompt #166 Like button animation).
+   Motion Prompt · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/ */
+.cb{position:relative;flex:none;display:inline-grid;place-items:center;width:26px;height:26px;cursor:pointer}
+.cb input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;min-height:0}
+.cb .ck{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(var(--accent-rgb),.45);transition:background .4s ease,border-color .4s ease,box-shadow .5s ease}
+.cb .ck path{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20}
+.cb input:checked+.ck{background:rgb(var(--glow-rgb));border-color:rgb(var(--glow-rgb));box-shadow:0 0 14px rgba(var(--glow-rgb),.55)}
+.cb input:checked+.ck path{stroke-dashoffset:0}
+.cb input:focus-visible+.ck{outline:2px solid var(--accent2);outline-offset:2px}
+.cb:hover .ck{border-color:rgba(var(--accent-rgb),.8)}
+.cb.boing .ck{animation:boing .55s cubic-bezier(.34,1.56,.64,1)}
+.cb.boing .ck path{animation:draw .45s cubic-bezier(.65,0,.35,1) .1s both}
+@keyframes boing{from{transform:scale(.72)}to{transform:scale(1)}}
+@keyframes draw{from{stroke-dashoffset:20}to{stroke-dashoffset:0}}
+.cb .sp{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:rgb(var(--glow-rgb));pointer-events:none;animation:spark .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes spark{0%{transform:rotate(var(--a)) translateX(8px) scale(1);opacity:.9}100%{transform:rotate(var(--a)) translateX(24px) scale(.3);opacity:0}}
+.it .g{transition:color .45s,opacity .45s}
+@keyframes glow{0%{box-shadow:0 0 0 rgba(var(--accent-rgb),0)}35%{box-shadow:0 0 40px rgba(var(--accent-rgb),.34)}100%{box-shadow:0 0 0 rgba(var(--accent-rgb),0)}}
+
+/* ✦ Apple-стиль: пружинная кривая, 3D-переходы между вкладками, стопка карточек, заставка */
+:root{--ease:cubic-bezier(.32,.72,0,1)}
+.stage{perspective:1400px;perspective-origin:50% 0;overflow-x:clip}
+.pane.out{display:block!important;position:absolute;top:var(--top,0);pointer-events:none;animation:paneOut .55s var(--ease) both}
+@keyframes paneOut{to{opacity:0;transform:translate3d(calc(var(--dir)*-36px),-14px,-180px) rotateX(5deg);filter:blur(5px)}}
+.pane.on.in3d{transform-origin:50% 0;animation:paneIn .7s var(--ease) both}
+@keyframes paneIn{from{opacity:0;transform:translate3d(calc(var(--dir)*40px),22px,-120px) rotateX(-6deg) scale(.97);filter:blur(6px)}}
+button{transition:transform .35s var(--ease),background .25s,color .25s}
+#ovb{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);display:grid;place-items:center;color:var(--accent);padding:0}
+#ovb svg{width:24px;height:24px}
+#ov{position:fixed;inset:0;z-index:50;background:var(--scrim);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);overflow-y:auto;padding:calc(64px + env(safe-area-inset-top,0px)) 0 140px;display:flex;flex-direction:column;align-items:center;perspective:1100px;opacity:0;transition:opacity .4s}
+#ov[hidden]{display:none}
+#ov.show{opacity:1}
+.oc{display:block;flex:none;margin-top:-84px;padding:0;text-align:left;border:1px solid var(--line);border-radius:22px;background:var(--sheet);color:var(--tx);overflow:hidden;transform-origin:50% 0;transform:rotateX(-14deg) translateY(140px) scale(.92);opacity:0;box-shadow:0 -18px 40px rgba(0,0,0,.55);transition:transform .75s var(--ease) calc(var(--i)*45ms),opacity .5s calc(var(--i)*45ms),border-color .3s}
+.oc:first-child{margin-top:0}.oc:hover{background:var(--sheet);color:var(--tx)}
+#ov.show .oc{transform:rotateX(-14deg);opacity:1}
+#ov.show .oc.cur{border-color:var(--accent);box-shadow:0 -18px 40px rgba(0,0,0,.55),0 0 30px rgba(var(--accent-rgb),.28)}
+#ov.show .oc.pick{transform:rotateX(0) scale(1.07);z-index:2;transition-delay:0s}
+.ot{display:flex;align-items:center;justify-content:center;height:46px;font:600 15px Manrope,sans-serif;background:linear-gradient(var(--sheet-hi),var(--sheet));border-bottom:1px solid var(--line)}
+.ob{display:block;height:170px;overflow:hidden;pointer-events:none;background:var(--bg)}
+.pv{transform-origin:0 0}.pv *{animation:none!important}
+#sp{position:fixed;inset:0;z-index:100;background:#02040c;display:grid;place-items:center;perspective:900px;overflow:hidden;cursor:pointer;transition:opacity .7s .15s,visibility .7s .15s}
+/* ✦ ЗАСТАВКА POLARIS (≈3.4 с, один раз за сессию, клик — пропустить)
+   0–1.4 с  прыжок сквозь звёзды (Motion Prompt #020 Zoom through — камера летит вперёд)
+   0.8 с    вспыхивает Полярная звезда с лучами (Motion Prompt #109 Lens flare)
+   1.3 с    буквы POLARIS поднимаются в 3D одна за другой и дальше качаются волной (Motion Prompt #130 Wave text)
+   2.3 с    по буквам пробегает свет (Motion Prompt #022 Light sweep)
+   1.9 с    линия из центра и подпись из-под неё (Motion Prompt #005 Mask reveal)
+   выход    название летит на зрителя, звёзды ускоряются — «влетаем» в приложение (#020)
+   Motion Prompt · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/ */
+#warp{position:absolute;inset:0;width:100%;height:100%}
+.sp-c{position:relative;text-align:center;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.7,0,.84,0),opacity .6s .2s,filter .8s}
+.sp-star{position:relative;width:10px;height:10px;margin:0 auto 30px;border-radius:50%;background:#fff;box-shadow:0 0 16px 5px rgba(var(--glow-rgb),.9),0 0 70px 24px rgba(var(--glow-rgb),.35);animation:starIn 1.1s cubic-bezier(.22,1,.36,1) .8s both,starPulse 3s ease-in-out 2s infinite}
+.sp-star::before,.sp-star::after{content:"";position:absolute;left:50%;top:50%;width:180px;height:1px;margin:-.5px 0 0 -90px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent)}
+.sp-star::after{transform:rotate(90deg);width:110px;margin-left:-55px}
+@keyframes starIn{0%{transform:scale(0);opacity:0}55%{transform:scale(1.7);opacity:1}100%{transform:scale(1)}}
+@keyframes starPulse{50%{box-shadow:0 0 22px 7px rgba(var(--glow-rgb),1),0 0 90px 30px rgba(var(--glow-rgb),.45)}}
+.sp-t{display:flex;justify-content:center;padding-left:.2em;font:200 clamp(46px,12vw,124px)/1 var(--font-display);letter-spacing:.2em;color:#eef2fb}
+.sp-t span{display:inline-block;transform-origin:50% 100%;animation:letIn .9s cubic-bezier(.22,1,.36,1) calc(1.3s + var(--i)*70ms) both,glint .9s ease-out calc(2.3s + var(--i)*70ms) both,wave 2.6s ease-in-out calc(2.4s + var(--i)*130ms) infinite}
+@keyframes letIn{from{opacity:0;transform:translateY(55%) rotateX(-95deg);filter:blur(8px)}}
+@keyframes glint{0%{text-shadow:0 0 0 rgba(var(--glow-rgb),0)}35%{color:#fff;text-shadow:0 0 18px rgba(var(--glow-rgb),.95),0 0 40px rgba(var(--glow-rgb),.5)}100%{text-shadow:0 0 0 rgba(var(--glow-rgb),0)}}
+@keyframes wave{0%,100%{translate:0 0}50%{translate:0 -7%}}
+.sp-line{width:min(380px,62vw);height:1px;margin:24px auto 0;background:linear-gradient(90deg,transparent,rgba(var(--glow-rgb),.95),transparent);animation:barIn .5s cubic-bezier(.65,0,.35,1) 1.9s both}
+.sp-sm{overflow:hidden;margin-top:14px}
+.sp-s{margin:0;font:500 11px Manrope,sans-serif;letter-spacing:.34em;text-transform:uppercase;color:#9aa3b5;animation:mrDown .6s cubic-bezier(.23,1,.32,1) 2.1s both}
+.sp-skip{position:absolute;bottom:calc(26px + env(safe-area-inset-bottom,0px));left:0;right:0;margin:0;text-align:center;font:500 10px Manrope,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.28);animation:subFade 1s 1.6s both}
+@keyframes subFade{from{opacity:0}}
+#sp.gone .sp-c{transform:translateZ(520px);opacity:0;filter:blur(6px)}
+#sp.gone .sp-skip{opacity:0}
+#sp.gone{opacity:0;visibility:hidden;pointer-events:none}
+
+/* ✦ ТИПОГРАФИКА: крупное — тонкое и сжатое, мелкое — КАПСОМ и разреженное (правила из design-refs) */
+h3{font:500 var(--fs-title)/1.2 var(--font-display);letter-spacing:-0.01em}
+.hero h2{font-size:var(--fs-hero);font-weight:300;letter-spacing:var(--track-tight);line-height:1.05}
+.hero h2 small{font:400 var(--fs-small) Manrope,sans-serif;letter-spacing:0;color:var(--mu);margin-left:6px;white-space:nowrap}
+.hero h2 small #goal{color:var(--tx)}
+#dl,.sub,.it time small,.it .m.lbl,.pt{font:500 var(--fs-label)/1.4 Manrope,sans-serif;letter-spacing:var(--track-label);text-transform:uppercase;color:var(--mu)}
+.sub{align-self:flex-start;margin-top:8px}
+.it time{font-size:var(--fs-time);font-weight:500;font-variant-numeric:tabular-nums;color:var(--tx)}
+.it time small{display:inline-block;margin-top:4px}
+.it .g{font-size:var(--fs-body)}
+.it .g .m{font-size:var(--fs-small)}
+.tabs button{font-size:14px;font-weight:500;letter-spacing:.01em}
+.date{font-size:16px;color:var(--tx);opacity:.85}
+#nx,#cl{font-size:var(--fs-small)}
+.day b{font:500 17px var(--font-display);letter-spacing:-0.01em}
+
+/* ✦ Motion Prompt #005 Mask reveal · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#005
+   Линия (полоска дня) растёт из центра 0.1–0.5 с; часы и дата выезжают снизу вверх из-под неё 0.35–1.0 с,
+   строки под линией — сверху вниз 0.55–1.15 с (quintic ease-out). Прозрачность не меняется — текст прячет только «маска». */
+.mr{overflow:hidden}
+.top.reveal .mr-in.up{animation:mrUp .65s cubic-bezier(.23,1,.32,1) .35s both}
+.top.reveal .mr-in.down{animation:mrDown .6s cubic-bezier(.23,1,.32,1) .55s both}
+.top.reveal .bar{animation:barIn .4s cubic-bezier(.65,0,.35,1) .1s both}
+@keyframes mrUp{from{transform:translateY(100%)}}
+@keyframes mrDown{from{transform:translateY(-100%)}}
+@keyframes barIn{from{transform:scaleX(0)}}
+
+/* ✦ Motion Prompt #154 Spotlight hover · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#154
+   Свет радиусом 115px внутри карточки ровно под курсором, рамки светятся по расстоянию (радиус 120px).
+   Цвет — наш синий, яркость внутри снижена, чтобы текст оставался читаемым. Только для мышки. */
+@media (hover:hover) and (pointer:fine){
+ .card{position:relative}
+ .card::before,.card::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;opacity:var(--spot,0);transition:opacity .3s}
+ .card::before{background:radial-gradient(115px circle at var(--mx,-999px) var(--my,-999px),rgba(var(--glow-rgb),.16),transparent 100%)}
+ .card::after{padding:2px;background:radial-gradient(120px circle at var(--mx,-999px) var(--my,-999px),rgba(var(--glow-rgb),.95),transparent 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+}
+
+/* ✦ Motion Prompt #085 Ripple effect · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#085
+   Круг из точки нажатия до дальнего угла за 0.6 с (cubic ease-out), гаснет с 0.3 до 0.8 с. Обрезан кнопкой, текст поверх. */
+button{position:relative;overflow:hidden;isolation:isolate}
+.tabs button,.row>button,.sqs button{flex:none} /* overflow:hidden разрешает кнопкам сжиматься — запрещаем, чтобы текст не обрезался */
+.rip{position:absolute;border-radius:50%;pointer-events:none;z-index:-1;background:rgba(var(--glow-rgb),.4);transform:scale(0);animation:ripGrow .6s cubic-bezier(.33,1,.68,1) forwards,ripFade .5s linear .3s forwards}
+@keyframes ripGrow{to{transform:scale(1)}}
+@keyframes ripFade{to{opacity:0}}
+
+/* ✦ Motion Prompt #069 Skeleton screen · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#069
+   Пока помощник «думает» — блоки на месте будущего текста, по ним каждые 0.9 с пробегает блик шириной 160px. */
+.bub.skel{display:grid;gap:8px;min-width:min(260px,70%);white-space:normal}
+.bub.skel i{display:block;height:11px;border-radius:6px;background:rgba(var(--accent-rgb),.12) linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent) no-repeat;background-size:160px 100%;background-position:-200px 0;animation:skel .9s linear infinite}
+.bub.skel i:nth-child(2){width:85%}.bub.skel i:nth-child(3){width:55%}
+@keyframes skel{to{background-position:calc(100% + 200px) 0}}
+.bub.in{animation:bubIn .15s linear}
+@keyframes bubIn{from{opacity:0}}
+
+/* ✦ МЕНЮ-ОСТРОВ. Основа — design-refs/apple-dark-watch.md: плавающие «таблетки» rgba(66,66,69,.72), радиус 9999px,
+   текст rgba(255,255,255,.8). Стекло с размытием, прилипает к верху, активная таблетка переезжает с пружинкой,
+   под курсором — мягкая подсветка (как в меню Vercel). */
+.tabs{position:sticky;top:calc(10px + env(safe-area-inset-top,0px));z-index:30;display:flex;gap:2px;width:fit-content;max-width:100%;margin:22px auto 20px;padding:5px;
+ border:1px solid rgba(255,255,255,.09);border-radius:9999px;background:rgba(18,22,34,.42);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 30px rgba(0,0,0,.25);overflow-x:auto;scrollbar-width:none;transition:background .4s,box-shadow .4s,padding .4s}
+.tabs::-webkit-scrollbar{display:none}
+.tabs.stuck{background:rgba(14,17,27,.62);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 40px rgba(0,0,0,.45),0 0 0 1px rgba(var(--glow-rgb),.12)}
+.tabs button{position:relative;z-index:2;min-height:38px;padding:9px 17px;border:0;border-radius:9999px;background:none;color:rgba(255,255,255,.62);font:500 13.5px/1 Manrope,sans-serif;letter-spacing:.01em;transition:color .35s}
+.tabs button:hover{background:none;color:#fff}
+.tabs button.on{color:#fff}
+#ind,#hov{position:absolute;top:5px;bottom:5px;left:0;border-radius:9999px;pointer-events:none}
+#ind{z-index:1;height:auto;background:rgba(255,255,255,.13);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 0 22px rgba(var(--glow-rgb),.28);
+ transition:transform .55s cubic-bezier(.34,1.32,.64,1),width .55s cubic-bezier(.34,1.32,.64,1)}
+#hov{z-index:0;background:rgba(255,255,255,.06);opacity:0;transition:transform .3s cubic-bezier(.22,1,.36,1),width .3s cubic-bezier(.22,1,.36,1),opacity .25s}
+.tabs:hover #hov{opacity:1}
+@media(max-width:760px){.tabs{width:100%;margin:16px 0 16px;-webkit-mask:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}.tabs button{padding:9px 14px}}
+
+/* ✦ ССЫЛКИ: линия плавно вырастает слева при наведении */
+a{color:var(--accent2);text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .35s cubic-bezier(.22,1,.36,1),color .25s}
+a:hover,a:focus-visible{background-size:100% 1px}
+
+/* ✦ 3D-ОРБ из частиц на фоне */
+#orb{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block}
+@media(max-width:760px){#orb{opacity:.55}} /* на телефоне куб за текстом — приглушаем, чтобы читалось */
+
+/* ✦ ЭКРАН ВХОДА — стеклянная карточка над небом (стиль design-refs/apple-dark-watch.md + auros.md).
+   Проверка почты на лету: Motion Prompt #159 Inline validation (0.15 с на смену рамки, галочка с elastic.out(1, 0.3)).
+   Кнопка: Motion Prompt #160 Loading button (сжимается в круг за 0.3 с, спиннер 0.7 с/оборот, зелёная галочка, раскрытие).
+   Motion Prompt · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/ */
+#auth{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(3,5,14,.38);transition:opacity .6s .15s}
+#auth[hidden]{display:none}
+html.locked .wrap,html.locked #ovb{visibility:hidden} /* пока не вошёл — видно только небо и сферу */
+.au{width:min(400px,100%);padding:30px 26px 22px;border-radius:24px;background:rgba(14,18,30,.55);border:1px solid rgba(255,255,255,.09);
+ -webkit-backdrop-filter:blur(26px) saturate(160%);backdrop-filter:blur(26px) saturate(160%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 30px 80px rgba(0,0,0,.5);
+ animation:auIn .9s cubic-bezier(.22,1,.36,1) both;transition:transform .6s cubic-bezier(.7,0,.84,0),opacity .5s,filter .6s}
+@keyframes auIn{from{opacity:0;transform:translateY(24px) scale(.97);filter:blur(8px)}}
+#auth.out{opacity:0}#auth.out .au{transform:scale(1.05);opacity:0;filter:blur(6px)}
+.au-mark{display:flex;align-items:center;justify-content:center;gap:12px}
+.au-star{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px 3px rgba(var(--glow-rgb),.9),0 0 30px 10px rgba(var(--glow-rgb),.35);animation:starPulse 3s ease-in-out infinite}
+.au-word{display:flex;font:300 14px/1 var(--font-display);letter-spacing:.34em;color:#e8edf8}
+.au-word span{display:inline-block;animation:wave 2.6s ease-in-out calc(var(--i)*130ms) infinite}
+.au-h{margin:18px 0 6px;text-align:center;font:300 30px/1.1 var(--font-display);letter-spacing:-.02em}
+.au-p{margin:0 0 18px;text-align:center;font-size:14px;color:var(--mu)}
+.fld{position:relative;display:block;margin-top:12px}
+.fl{display:block;margin:0 0 6px 2px;font:500 11px/1.4 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.fld input{width:100%;height:48px;padding:0 46px 0 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);font-size:16px;
+ transition:border-color .15s cubic-bezier(.33,1,.68,1),background .15s,box-shadow .15s}
+.fld input:focus{border-color:rgba(var(--glow-rgb),.95);border-width:2.2px;box-shadow:0 0 0 4px rgba(var(--glow-rgb),.14);outline:none}
+.fld.bad input{border-color:#e5383b;background:rgba(229,56,59,.08)}
+.fld.good input{border-color:#1e9e5a}
+.ok{position:absolute;right:13px;bottom:13px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1e9e5a;transform:scale(0);pointer-events:none}
+.ok svg,.gk svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.fld.good .ok{animation:okIn .8s linear both}
+@keyframes okIn{0%{transform:scale(0)}8%{transform:scale(1.06)}16%{transform:scale(1.323)}24%{transform:scale(.941)}32%{transform:scale(.901)}40%{transform:scale(1.031)}50%{transform:scale(1.016)}60%{transform:scale(.984)}75%{transform:scale(1.006)}100%{transform:scale(1)}}
+.fmsg{min-height:17px;margin:6px 2px 0;font-size:12.5px;color:#ff8a8c;opacity:0;transform:translateY(-4px);transition:opacity .15s cubic-bezier(.33,1,.68,1),transform .15s cubic-bezier(.33,1,.68,1)}
+.fmsg.show{opacity:1;transform:none}.fmsg.okm{color:#5fd39a}
+.eye{position:absolute;right:6px;bottom:6px;width:36px;height:36px;min-height:0;padding:0;border:0;border-radius:10px;background:none;color:var(--mu);display:grid;place-items:center}
+.eye:hover{background:rgba(255,255,255,.06);color:#fff}
+.eye svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7}
+.go{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:48px;min-height:0;margin:16px auto 0;padding:0;border:0;border-radius:9999px;background:#fff;color:#0a0b0e;font-weight:600;
+ transition:width .3s cubic-bezier(.65,0,.35,1),background .2s}
+.go:hover{background:#e8ecf3;color:#0a0b0e}
+.go .gl{transition:opacity .1s}
+.go.load,.go.done{pointer-events:none}.go.load{width:48px}.go.load .gl{opacity:0}
+.spn{position:absolute;width:20px;height:20px;border-radius:50%;border:3px solid rgba(10,11,14,.15);border-top-color:#0a0b0e;opacity:0}
+.go.load .spn{opacity:1;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.gk{position:absolute;display:grid;place-items:center;opacity:0}
+.gk path{stroke-dasharray:20;stroke-dashoffset:20}
+.go.done{width:150px;background:#1e9e5a;color:#fff;transition:width .35s cubic-bezier(.65,0,.35,1) .2s,background .2s}
+.go.done .gl{opacity:1;padding-left:26px;transition:opacity .2s .3s}.go.done .gk{opacity:1;left:calc(50% - 38px)}
+.go.done .gk path{animation:draw .25s ease-out both}
+.or{display:flex;align-items:center;gap:12px;margin:18px 0 10px;font-size:12px;color:var(--mu)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.1)}
+.alt{width:100%;height:46px;min-height:0;margin-top:8px;border-radius:9999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:#fff;font-weight:500}
+.alt:hover{background:rgba(255,255,255,.08);color:#fff}
+.alt:disabled{opacity:.42;cursor:default}
+.au-note{margin:14px 0 0;text-align:center;font-size:11.5px;line-height:1.5;color:var(--mu)}
+.fld.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.lo{min-height:0;padding:2px 0 2px 10px;border:0;background:none;color:var(--mu);font:inherit;letter-spacing:inherit;text-transform:inherit;text-decoration:underline;text-underline-offset:3px}
+.lo:hover{background:none;color:#fff}
+
+/* ✦ ПОДВАЛ: все данные проекта внизу страницы (по мотивам подвалов Apple/Vercel из design-refs) */
+.ft{margin-top:56px;border-top:1px solid rgba(255,255,255,.08);background:rgba(4,6,14,.55);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.ft-in{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px;max-width:1040px;margin:auto;padding:44px 16px 28px}
+.ft-mark{justify-content:flex-start}
+.ft-brand p{max-width:300px;margin:14px 0 0;font-size:14px;line-height:1.55;color:var(--mu)}
+.ft h4{margin:2px 0 14px;font:500 11px/1.4 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.ft-col{display:flex;flex-direction:column;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,.72)}
+.ft-col a{color:rgba(255,255,255,.85)}
+.nw{white-space:nowrap}
+.ft-tag{font-style:normal;margin-left:4px;padding:1px 7px;border-radius:9999px;border:1px solid rgba(255,255,255,.14);font-size:11px;color:var(--mu)}
+.ft-bot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;max-width:1040px;margin:auto;padding:16px 16px calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;color:var(--mu)}
+@media(max-width:760px){.ft-in{grid-template-columns:1fr 1fr;gap:24px 16px}.ft-brand{grid-column:1/-1}}
+html.locked .ft{visibility:hidden}
+
+/* ✦ Motion Prompt #049 Modal dialog · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049
+   Открытие 0.32 с (easeOutCubic): фон темнеет, окно вырастает 0.9 → 1 и проявляется. Закрытие 0.28 с (easeInOutCubic). */
+.md{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px;background:rgba(6,8,16,0);transition:background .32s cubic-bezier(.33,1,.68,1)}
+.md.on{background:rgba(6,8,16,.55)}
+.md-w{width:min(340px,100%);padding:22px;border-radius:20px;background:rgba(18,22,34,.82);border:1px solid rgba(255,255,255,.1);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+ transform:scale(.9);opacity:0;transition:transform .32s cubic-bezier(.33,1,.68,1),opacity .32s cubic-bezier(.33,1,.68,1)}
+.md.on .md-w{transform:none;opacity:1}
+.md.off,.md.off .md-w{transition-duration:.28s;transition-timing-function:cubic-bezier(.65,0,.35,1)}
+.md.off{background:rgba(6,8,16,0)}.md.off .md-w{transform:scale(.9);opacity:0}
+.md-t{margin:0 0 18px;font-size:16px;line-height:1.45}
+.md-b{display:flex;gap:10px;justify-content:flex-end}
+.md-b button{min-height:40px;padding:0 18px;border-radius:9999px}
+.md-yes{background:#e5383b;border-color:#e5383b;color:#fff}.md-yes:hover{background:#ff4d50;border-color:#ff4d50;color:#fff}
+</style></head><body><canvas id="sky" aria-hidden="true"></canvas><canvas id="orb" aria-hidden="true"></canvas>
+<div id="sp" role="img" aria-label="Polaris — My Assistant by Matvei"><canvas id="warp" aria-hidden="true"></canvas><div class="sp-c" aria-hidden="true"><div class="sp-star"></div><div class="sp-t"><span style="--i:0">P</span><span style="--i:1">O</span><span style="--i:2">L</span><span style="--i:3">A</span><span style="--i:4">R</span><span style="--i:5">I</span><span style="--i:6">S</span></div><div class="sp-line"></div><div class="sp-sm"><p class="sp-s">My Assistant · by Matvei</p></div></div><p class="sp-skip" aria-hidden="true">нажми, чтобы пропустить</p></div><div id="auth" hidden><form class="au" id="auf" novalidate aria-labelledby="auh">
+<div class="au-mark" aria-hidden="true"><i class="au-star"></i><span class="au-word"><span style="--i:0">P</span><span style="--i:1">O</span><span style="--i:2">L</span><span style="--i:3">A</span><span style="--i:4">R</span><span style="--i:5">I</span><span style="--i:6">S</span></span></div>
+<h2 class="au-h" id="auh">С возвращением</h2><p class="au-p">Войди, чтобы открыть свой день</p>
+<label class="fld" id="fe"><span class="fl">Почта</span><input id="ae" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" aria-describedby="em"><b class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.8 3.8L17.5 9"/></svg></b></label>
+<p class="fmsg" id="em" aria-live="polite"></p>
+<label class="fld" id="fp"><span class="fl">Пароль</span><input id="ap" type="password" autocomplete="current-password" placeholder="Минимум 4 символа" aria-describedby="pm"><button type="button" class="eye" id="aeye" aria-label="Показать пароль"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></label>
+<p class="fmsg" id="pm" aria-live="polite"></p>
+<button class="go" id="ago" type="submit"><span class="gl">Войти</span><i class="spn" aria-hidden="true"></i><span class="gk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.8 3.8L17.5 9"/></svg></span></button>
+<div class="or"><span>или</span></div>
+<button type="button" class="alt" id="aguest">Войти как гость</button>
+<button type="button" class="alt" disabled>Вход через Telegram · скоро</button>
+<p class="au-note">Демо-версия: почта и пароль никуда не отправляются и не сохраняются.</p>
+</form></div><div class="wrap">
+<header class="top"><div><div class="mr"><div class="mr-in up"><div class="clock serif"><span class="shine" id="clk"></span><span id="sec"></span></div><div class="date" id="dt"></div></div></div><div class="bar"><i id="dp" style="animation:none"></i></div><div class="mr"><div class="mr-in down"><div class="m" id="nx"></div><div class="m" id="cl" aria-live="polite">Демо-версия</div></div></div></div><div class="sub">Личный ежедневник · демо <button class="lo" id="logout" type="button">Выйти</button></div></header>
+<section class="card hero"><div class="row sp"><h2><span class="shine" id="mny">0 ₽</span> <small>из <span id="goal"></span></small></h2><small id="dl"></small></div><div class="bar"><i id="gb"></i></div>
+<div class="row"><input id="mi" type="number" min="1" step="500" placeholder="Сколько заработал, ₽" aria-label="Добавить доход"><button id="ms">Добавить</button></div><div class="row" style="margin-top:10px;align-items:center"><label class="m" for="sd" style="flex:none">День старта</label><input id="sd" type="date" aria-label="Дата старта"></div></section>
+<div class="alert" id="alert" hidden></div>
+<nav class="tabs" role="tablist"></nav>
+
+<section class="pane" id="today"><div class="g2">
+<div><div class="card" id="hdue" hidden></div><div class="card"><h3>Пары сегодня</h3><div id="tc"></div></div><div class="card"><h3>Распорядок</h3><div id="rt"></div></div></div>
+<div><div class="card"><h3>Задачи на сегодня</h3><form class="row" id="tf"><input id="ti" required placeholder="Что нужно сделать" style="flex:1"><button>Добавить</button></form><div id="tl"></div></div>
+<div class="card"><h3>Привычки</h3><div id="hb"></div><form class="row" id="hf" style="margin-top:10px"><input id="hn" required placeholder="Новая привычка" style="flex:1"><button>Добавить</button></form></div>
+<div class="card"><h3>Время сегодня</h3><div class="stats" id="tm"></div></div></div></div></section>
+
+<section class="pane" id="uni"><div class="card"><div class="row sp"><h3>Расписание · Моя группа
+
+</h3><div class="row"><button id="wp" aria-label="Предыдущая неделя">‹</button><button id="wt">Сегодня</button><button id="wn" aria-label="Следующая неделя">›</button></div></div><p class="m" id="wl"></p><div id="sl"></div></div>
+<div class="card"><h3>Время пар</h3><p class="m">Первая пара в 08:00, каждая идёт 1,5 часа, перемена 20 минут. Если у тебя время другое, поменяй здесь.</p><div class="ptw" id="ptw"></div></div>
+<div class="card"><h3>Папки предметов</h3><form class="row" id="af"><input id="an" required placeholder="Новая папка" style="flex:1"><button>Создать</button></form><div class="fold" id="fl" style="margin-top:14px"></div></div><div class="card" id="fp" hidden></div></section>
+
+<section class="pane" id="jr"><div class="card"><div class="row sp"><h3>Посещаемость</h3><label class="m">Нужно посещать, % <input id="rq" type="number" min="0" max="100" style="width:80px"></label></div><p class="m">Нажми на квадрат: первый раз «был», второй «пропуск», третий сбросит. Процент 75 я поставил как предположение, поменяй на правила своего вуза.</p><div id="jl"></div></div></section>
+<section class="pane" id="fd"><div class="g2"><div class="card"><h3>Калории на сегодня</h3><div class="row"><select id="kg"><option>Набор массы</option><option>Похудение</option><option>Поддержание</option></select><input id="kt" type="number" min="800" max="6000" placeholder="Цель, ккал" style="width:130px"><input id="kb" type="number" min="0" placeholder="Бюджет, ₽/день" style="width:140px"></div><div class="bar"><i id="kbar" style="animation:none"></i></div><p class="m" id="kinfo"></p><form class="row" id="kf"><input id="ke" type="number" min="1" required placeholder="Съел, ккал" style="flex:1"><button>Добавить</button></form><p><button id="kmeal">Составить рацион</button></p><div id="mealout" class="bub a" hidden></div><p class="m">Рацион — ориентир, не медицинская рекомендация.</p></div>
+<div class="card"><h3>Мои продукты</h3><form class="row" id="pf"><input id="pn" required placeholder="Продукт" style="flex:1"><input id="pp" type="number" min="0" placeholder="₽" style="width:90px"><button>Добавить</button></form><small class="m" id="pls"></small><div id="pl"></div></div></div></section>
+<section class="pane" id="hm"><div class="card"><h3>Дела по дому</h3><form class="row" id="cf2"><input id="cn" required placeholder="Что делать" style="flex:1"><input id="ce" type="number" min="1" max="365" required placeholder="Раз в … дней" style="width:150px"><button>Добавить</button></form><div id="hl"></div></div></section>
+<section class="pane" id="tk"><div class="card"><h3>Все задачи</h3><div id="ta"></div></div></section>
+
+<section class="pane" id="mo"><div class="g2"><div class="card"><h3>Идеи заработка на сегодня</h3><p class="m">Это идеи для проверки, дохода они не гарантируют.</p><form class="row" id="idf"><input id="idn" required placeholder="Своя идея" style="flex:1"><button>Добавить</button></form><div id="il"></div><p><button data-q="Дай 3 реалистичные идеи заработка на сегодня для студента, который учится программировать. Для каждой: первый шаг на 30 минут и чего ожидать.">Идеи от помощника</button></p></div>
+<div class="card"><h3>Доход</h3><form class="row" id="if"><input id="ia" type="number" min="1" required placeholder="Сумма, ₽" style="width:130px"><input id="is" placeholder="Источник" style="flex:1"><button>Записать</button></form><div id="inl"></div></div></div></section>
+
+<section class="pane" id="dy"><div class="card"><h3>Дневник</h3><p class="m">Что сделал сегодня</p><textarea id="d1"></textarea><p>Что помешало</p><textarea id="d2"></textarea><p>Главная мысль дня</p><textarea id="d3"></textarea><p><button id="ds">Сохранить дневник</button> <span id="dok" class="m"></span></p></div></section>
+
+<section class="pane" id="ai"><div class="card"><h3>Помощник</h3><div class="row" style="margin-bottom:12px"><button data-q="Что у меня сегодня и завтра по парам?">Мои пары</button><button data-q="Составь план на сегодня с учётом пар и задач.">План дня</button><button data-q="Объясни простыми словами, что такое API и зачем он нужен.">Что такое API</button></div>
+<div id="ch"></div><form class="row" id="cf"><input id="ci" required placeholder="Спроси что угодно" style="flex:1"><button>Спросить</button></form><p class="m" id="aist"></p></div></section>
+</div>
+<footer class="ft"><div class="ft-in">
+<div class="ft-brand"><div class="au-mark ft-mark" aria-label="Polaris"><i class="au-star"></i><span class="au-word" aria-hidden="true"><span style="--i:0">P</span><span style="--i:1">O</span><span style="--i:2">L</span><span style="--i:3">A</span><span style="--i:4">R</span><span style="--i:5">I</span><span style="--i:6">S</span></span></div>
+<p>Личный ассистент студента: пары, задачи, привычки, деньги и AI-помощник — в одном месте.</p></div>
+<div class="ft-col"><h4>Контакты</h4><a href="https://t.me/rolqm" target="_blank" rel="noopener">Telegram · @rolqm</a>
+<span>Поддержка: <span class="nw">+7 (900) 000-00-00</span> <em class="ft-tag">номер-пример</em></span><span>Ежедневно, 10:00–20:00 МСК</span></div>
+<div class="ft-col"><h4>Документы</h4><a href="privacy.html">Политика конфиденциальности</a><a href="privacy.html#data">Какие данные хранятся</a></div>
+<div class="ft-col"><h4>Проект</h4><span>Версия 2.0 · демо</span><span>HTML · CSS · JavaScript</span><a href="https://showheyohtaki.github.io/motion-prompt/" target="_blank" rel="noopener">Анимации: Motion Prompt (MIT)</a></div>
+</div><div class="ft-bot"><span>© 2026 Polaris · My Assistant by Matvei Kutafin</span><span>Демо-версия для портфолио</span></div></footer>
+<script>
+
+const $=s=>document.querySelector(s),K="myassistant_demo_v1",GOAL=50000,D=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],TY={"л.":"лекция","пр.":"практика","лаб.":"лабораторная"};
+const fmt=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),tk=()=>fmt(new Date());
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+/* ДЕМО-расписание: вымышленное. Строится вокруг сегодняшней недели, поэтому демо всегда выглядит живым. */
+const DEMO_WEEK=[
+ [[1,"Высшая математика","л.","Иванова А.П.","А-101"],[2,"Программирование","пр.","Смирнов Д.К.","Б-204"],[3,"Английский язык","пр.","Орлова Е.С.","В-12"]],
+ [[2,"Информационные технологии","л.","Смирнов Д.К.","Б-301"],[3,"История","л.","Петров В.Н.","А-101"],[4,"Физическая культура","пр.","Козлов М.И.","Спортзал"]],
+ [[1,"Высшая математика","пр.","Иванова А.П.","А-205"],[2,"Базы данных","л.","Лебедев О.Р.","Б-204"]],
+ [[1,"Английский язык","пр.","Орлова Е.С.","В-12"],[3,"Программирование","л.","Смирнов Д.К.","Б-301"],[4,"Экономика","л.","Новикова Т.А.","А-101"]],
+ [[2,"Базы данных","пр.","Лебедев О.Р.","Б-204"],[3,"История","пр.","Петров В.Н.","А-205"]]
+];
+const SCH=(()=>{const out=[],mon=addD(new Date(),-((new Date().getDay()+6)%7));
+ for(let w=-8;w<=12;w++)DEMO_WEEK.forEach((day,d)=>day.forEach(p=>out.push([fmt(addD(mon,w*7+d)),p[0],p[1],p[2],p[3],p[4]])));
+ return out})();
+const dayIdx=()=>(new Date().getDay()+6)%7;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const SUBJ=[...new Set(SCH.map(x=>x[2]))];
+const mkS=()=>SUBJ.concat(["Мои заметки"]).map((n,i)=>({id:i+1,name:n,files:[],att:{},grades:[]}));
+const RT=[["07:30","Подъём и завтрак"],["08:00","План дня: 3 главных результата"],["14:00","Домашние задания"],["16:00","Обучение, 2 часа"],["18:00","Личное время"],["22:00","Проект и программирование"],["00:15","Дневник и план на завтра"]];
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!S){let o={};
+ S={money:o.money||0,start:fmt(addD(new Date(),-12)),tasks:[{id:"d1",text:"Подготовиться к практике по базам данных",date:tk(),time:"до 14:00",done:false},{id:"d2",text:"Сделать домашку по высшей математике",date:tk(),time:"",done:false},{id:"d3",text:"Решить 3 задачи по программированию",date:tk(),time:"вечером",done:true}],time:o.time||{},diary:o.diary||{},routine:o.routine||RT,subj:mkS(),income:[[-9,12000,"Лендинг для кофейни"],[-5,8000,"Правки сайта"],[-2,15000,"Мини-приложение для клиента"]].map(([n,a,s])=>({d:fmt(addD(new Date(),n)).slice(5).split("-").reverse().join("."),a,s})),
+ ideas:[{id:1,text:"Придумать идею небольшого сайта и набросать его структуру",done:false},{id:2,text:"Оформить свой проект как кейс для портфолио",done:false},{id:3,text:"Изучить, какие услуги сейчас востребованы у заказчиков",done:false}],
+ habits:["Вода 2 л","Тренировка","Чтение 20 минут","Код 1 час"].map((n,i)=>({id:i+1,name:n,days:{}}))}}
+let open=null,wk=0,AI=null,H=[];
+S.income??=[];S.pt??=PT();S.at??={};S.cfg??={req:75};S.kc??={g:"Поддержание",t:"",b:""};S.eat??={};S.prod??=[];
+S.chores??=[["Уборка",14],["Стирка",7],["Поменять постельное",14]].map((c,i)=>({id:i+1,name:c[0],every:c[1],last:null}));
+/* Сумма = стартовый остаток (то, что было вписано раньше) + все записи дохода. Итог всегда считается, а не хранится вручную. */
+const total=()=>{const s=S.income.reduce((a,i)=>a+i.a,0);if(S.base===undefined)S.base=Math.max(0,(S.money||0)-s);return Math.max(0,S.base+s)};
+/* ✦ Помощники анимаций. Страница перерисовывается целиком, поэтому класс вешаем уже ПОСЛЕ перерисовки и снимаем через время. */
+const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const addFx=(els,cls,ms)=>els.forEach(e=>{e.classList.add(cls);setTimeout(()=>e.classList.remove(cls),ms)});
+const celebrate=sel=>{if(calm)return;document.querySelectorAll(sel).forEach(i=>{const cb=i.closest(".cb")||i;addFx([cb],"boing",700);sparks(cb);addFx([i.closest(".it")||i],"flash",900)})};
+function sparks(el){for(let k=0;k<8;k++){const s=document.createElement("i");s.className="sp";s.style.setProperty("--a",(k*45+22)+"deg");el.append(s);setTimeout(()=>s.remove(),850)}}
+const enter=sel=>{if(!calm)addFx([...document.querySelectorAll(sel)].map(i=>i.closest(".it")||i),"enter",550)};
+const glow=()=>{if(!calm)addFx([...document.querySelectorAll(".hero")],"glow",1450)};
+let mnyShown=0,mnyTo=-1,mnyRaf=0;
+function tweenMoney(to,ms){if(to===mnyTo)return;mnyTo=to;cancelAnimationFrame(mnyRaf);const from=mnyShown,t0=performance.now(),el=$("#mny"),show=v=>{mnyShown=v;el.textContent=v.toLocaleString("ru-RU")+" ₽"};
+ el.style.minWidth="";show(to);el.style.minWidth=el.offsetWidth+"px";show(from); // #007: держим место под итоговое число
+
+ if(!ms||calm){show(to);return}
+ const f=t=>{const k=Math.min(1,(t-t0)/ms);show(Math.round(from+(to-from)*(1-Math.pow(1-k,4))));if(k<1)mnyRaf=requestAnimationFrame(f);else{el.classList.remove("land");void el.offsetWidth;el.classList.add("land")}};mnyRaf=requestAnimationFrame(f)}
+const save=()=>{persist();render()};
+/* В демо-версии облака нет: данные хранятся только в памяти браузера (localStorage). */
+const pill=(txt,ok)=>{const e=$("#cl");if(e){e.textContent=txt;e.style.color=ok?"var(--accent)":"var(--mu)"}};
+function persist(){S._ts=Date.now();try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+const sub=id=>S.subj.find(s=>s.id==id),dayE=d=>SCH.filter(x=>x[0]==d).sort((a,b)=>a[1]-b[1]);
+const tabs=[["today","Сегодня"],["uni","Универ"],["jr","Посещаемость"],["tk","Задачи"],["mo","Заработок"],["fd","Питание"],["hm","Дом"],["dy","Дневник"],["ai","Помощник"]];
+$(".tabs").innerHTML=tabs.map(t=>`<button role="tab" data-t="${t[0]}">${t[1]}</button>`).join("")+'<i id="ind"></i><i id="hov"></i>';
+const tabIds=()=>tabs.map(t=>t[0]);
+function go(id){const panes=[...document.querySelectorAll(".pane")],prev=panes.find(p=>p.classList.contains("on")),next=panes.find(p=>p.id==id);
+ if(prev&&next&&prev!==next&&!calm){const host=prev.parentElement;if(getComputedStyle(host).position==="static")host.style.position="relative";
+  host.classList.add("stage");host.style.setProperty("--dir",tabIds().indexOf(id)>tabIds().indexOf(prev.id)?1:-1);
+  prev.style.cssText=`--top:${prev.offsetTop}px;left:${prev.offsetLeft}px;width:${prev.offsetWidth}px`;prev.classList.add("out");addFx([next],"in3d",750);
+  setTimeout(()=>{prev.classList.remove("out");prev.style.cssText=""},560)}
+ panes.forEach(p=>p.classList.toggle("on",p.id==id));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t==id));moveInd()}
+const pair=x=>`<div class="it"><time>${ptm(x[1])}<br><small class="m">${x[1]}-я пара</small></time><span class="g">${esc(x[2])}<br><span class="m">${esc((TY[x[3]]||x[3])+" · "+x[4]+" · "+x[5])}</span></span></div>`;
+const task=t=>`<div class="it ${t.done?"done":""}"><label class="cb"><input type="checkbox" data-c="${t.id}" ${t.done?"checked":""} aria-label="Готово"><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.8 3.8L17.5 9"/></svg></label><span class="g">${esc(t.text)}${t.time?` <span class="m">· ${esc(t.time)}</span>`:""}</span><button class="x" data-x="${t.id}" aria-label="Удалить">✕</button></div>`;
+function clock(){const n=new Date(),p=v=>String(v).padStart(2,"0");$("#clk").textContent=p(n.getHours())+":"+p(n.getMinutes());$("#sec").textContent=":"+p(n.getSeconds());
+ $("#dt").textContent=n.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});$("#dp").style.width=((n.getHours()*60+n.getMinutes())/14.4)+"%";
+ nextInfo(n);remindPairs(n)}
+// ✦ Напоминания о парах: за 10 минут и на старте. Каждое показывается один раз.
+const reminded=new Set();
+function remindPairs(n){const now=n.getHours()*60+n.getMinutes();
+ for(const x of dayE(tk())){const st=mn(S.pt[x[1]-1]||"08:00"),key=tk()+"/"+x[1],where=x[2]+" · "+x[5];
+  if(now>=st-10&&now<st&&!reminded.has(key+"/soon")){reminded.add(key+"/soon");toast(`Через ${st-now} мин: ${where}`,6000)}
+  if(now>=st&&now<st+2&&!reminded.has(key+"/start")){reminded.add(key+"/start");reminded.add(key+"/soon");toast(`Пара началась: ${where}`,6000)}}}
+function render(){
+ S.money=total();tweenMoney(S.money,cu?900:0);$("#gb").style.width=Math.min(100,S.money/GOAL*100)+"%";$("#sd").value=S.start;$("#goal").textContent=GOAL.toLocaleString("ru-RU")+" ₽";
+ $("#dl").textContent=`${(()=>{const e=Math.floor((new Date(tk())-new Date(S.start))/864e5);return`День ${Math.min(90,Math.max(1,e+1))} из 90 · осталось ${Math.max(0,89-e)} дн.`})()}`;
+ const td=dayE(tk());$("#tc").innerHTML=td.length?td.map(pair).join(""):'<p class="empty">Сегодня пар нет.</p>';
+ $("#rt").innerHTML=S.routine.map((r,i)=>`<div class="it"><time contenteditable data-r="${i}0">${esc(r[0])}</time><span class="g" contenteditable data-r="${i}1">${esc(r[1])}</span></div>`).join("");
+ const tt=S.tasks.filter(t=>t.date==tk());$("#tl").innerHTML=tt.length?tt.map(task).join(""):'<p class="empty">Добавь первую задачу дня.</p>';
+ $("#ta").innerHTML=S.tasks.length?S.tasks.slice().reverse().map(task).join(""):'<p class="empty">Задач пока нет.</p>';
+ $("#hb").innerHTML=S.habits.map(h=>{let s=0,d=new Date();if(!h.days[tk()])d=addD(d,-1);while(h.days[fmt(d)]){s++;d=addD(d,-1)}
+  return`<div class="it ${h.days[tk()]?"done":""}"><label class="cb"><input type="checkbox" data-h="${h.id}" ${h.days[tk()]?"checked":""} aria-label="${esc(h.name)}"><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.8 3.8L17.5 9"/></svg></label><span class="g">${esc(h.name)}</span><span class="m lbl">серия ${s}</span><button class="x" data-hx="${h.id}" aria-label="Удалить">✕</button></div>`}).join("");
+ const tm=S.time[tk()]||{};$("#tm").innerHTML=[["study","Учёба",120],["code","Код",60],["life","Личное",240]].map(([k,n,g])=>`<div><div class="m">${n}</div><div class="num">${tm[k]||0}<small class="m"> / ${g} мин</small></div><button data-a="${k}" style="padding:4px 10px;font-size:13px">+30</button></div>`).join("");
+ const mon=addD(new Date(),wk*7-dayIdx());$("#wl").textContent=`${mon.toLocaleDateString("ru-RU",{day:"numeric",month:"long"})} — ${addD(mon,6).toLocaleDateString("ru-RU",{day:"numeric",month:"long"})}. Время пар можно поменять ниже.`;
+ $("#sl").innerHTML=D.map((n,i)=>{const dd=addD(mon,i),e=dayE(fmt(dd));return`<div class="day ${fmt(dd)==tk()?"now":""}"><b class="serif">${n}, ${dd.getDate()}.${String(dd.getMonth()+1).padStart(2,"0")}</b>${e.length?e.map(pair).join(""):'<p class="empty">Пар нет</p>'}</div>`}).join("");
+ $("#fl").innerHTML=S.subj.map(s=>`<div class="f ${open==s.id?"on":""}" data-f="${s.id}" tabindex="0" role="button"><b>${esc(s.name)}</b><span>${s.files.length} записей</span></div>`).join("");
+ const o=sub(open);$("#fp").hidden=!o;if(o)$("#fp").innerHTML=`<div class="row sp"><h3>${esc(o.name)}</h3><button class="x" data-del="${o.id}">Удалить папку</button></div><form class="row" id="ff"><input id="fn" required placeholder="Название или заметка" style="flex:1"><input id="fu" type="url" placeholder="Ссылка (необязательно)" style="flex:1"><button>Добавить</button></form>`+(o.files.length?o.files.map((f,i)=>`<div class="it"><span class="g">${f.u?`<a href="${esc(f.u)}" target="_blank" rel="noopener">${esc(f.n)}</a>`:esc(f.n)}</span><button class="x" data-fx="${i}">✕</button></div>`).join(""):'<p class="empty">Папка пуста. Добавь конспект, ссылку или задание.</p>');
+ $("#jl").innerHTML=S.subj.filter(s=>SUBJ.includes(s.name)).map(s=>{const v=Object.values(s.att),b=v.filter(x=>x=="p").length,av=s.grades.length?(s.grades.reduce((a,x)=>a+x,0)/s.grades.length).toFixed(1):"—";
+  return`<div class="it"><span class="g"><b>${esc(s.name)}</b><br><span class="m">Посещаемость ${v.length?Math.round(b/v.length*100):0}% · пропусков ${v.length-b} · средний балл ${av}</span></span><button data-p="${s.id}">Был</button><button data-n="${s.id}">Пропуск</button><input type="number" min="1" max="100" placeholder="Оценка" data-g="${s.id}" style="width:90px"></div>`}).join("");
+ $("#il").innerHTML=S.ideas.map(i=>`<div class="it ${i.done?"done":""}"><label class="cb"><input type="checkbox" data-i="${i.id}" ${i.done?"checked":""} aria-label="Сделано"><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.8 3.8L17.5 9"/></svg></label><span class="g">${esc(i.text)}</span><button class="x" data-ix="${i.id}" aria-label="Удалить">✕</button></div>`).join("");
+ $("#inl").innerHTML=S.income.length?S.income.map((i,k)=>({i,k})).slice(-8).reverse().map(({i,k})=>`<div class="it"><time>${i.d}</time><span class="g">${esc(i.s||"Доход")}</span><b class="num" style="font-size:20px">+${i.a.toLocaleString("ru-RU")} ₽</b><button class="x" data-dx="${k}" aria-label="Удалить запись">✕</button></div>`).join(""):'<p class="empty">Записывай каждый заработанный рубль: сумма добавится к цели.</p>';
+ const d=S.diary[tk()]||{};$("#d1").value=d.a||"";$("#d2").value=d.b||"";$("#d3").value=d.c||"";render2();
+}
+function msg(c,t){const b=document.createElement("div");b.className="bub "+c;b.textContent=t;const ch=$("#ch");ch.append(b);ch.scrollTop=ch.scrollHeight;return b} // крутим только окно чата, не страницу
+function thinking(){const b=msg("a","");b.classList.add("skel");b.setAttribute("aria-label","Помощник думает");b.innerHTML="<i></i><i></i><i></i>";return b}
+function reply(b,text){if(b.classList.contains("skel")){b.classList.remove("skel");b.removeAttribute("aria-label");b.classList.add("in")}b.textContent=text;const ch=$("#ch");ch.scrollTop=ch.scrollHeight}
+async function ask(q){go("ai");msg("u",q);H.push({role:"user",content:q});const b=thinking();
+ if(!AI){await new Promise(r=>setTimeout(r,calm?0:1400));reply(b,"В демо-версии помощник отключён. В полной версии он знает твоё расписание и задачи и подсказывает, что делать между парами.");return}
+ const ctx=`Ты помощник студента (информатика, цель — накопить ${GOAL} ₽ за 3 месяца). Отвечай по-русски, коротко и по делу, без гарантий дохода. Данные на ${tk()}: заработано ${S.money} ₽; пары сегодня: ${dayE(tk()).map(x=>x[1]+"-я "+x[2]).join(", ")||"нет"}; завтра: ${dayE(fmt(addD(new Date(),1))).map(x=>x[1]+"-я "+x[2]).join(", ")||"нет"}; открытые задачи: ${S.tasks.filter(t=>!t.done).map(t=>t.text).join("; ")||"нет"}.\n\n`;
+ let t=H.slice(-8);while(t.length&&t[0].role!="user")t.shift();t=t.map(m=>({...m}));t[0].content=ctx+t[0].content;
+ try{const r=await AI(t,{cache:false,onText:({text})=>{reply(b,text)}});reply(b,r.text);H.push({role:"assistant",content:r.text})}
+ catch(e){reply(b,e&&e.code=="not_granted"?"Доступ к помощнику не разрешён.":"Не получилось ответить. Попробуй ещё раз.");H.pop()}}
+document.addEventListener("click",e=>{const t=e.target,d=t.dataset||{};
+ if(d.q)ask(d.q);
+ if(d.x){S.tasks=S.tasks.filter(x=>x.id!=d.x);save()}
+  if(d.dx!==undefined){S.income.splice(+d.dx,1);save()}
+ if(d.a){(S.time[tk()]??={})[d.a]=(S.time[tk()][d.a]||0)+30;save()}
+ if(d.fx){sub(open).files.splice(+d.fx,1);save()}
+ if(d.del){const id=d.del;confirmBox("Удалить папку со всем содержимым?").then(y=>{if(y){S.subj=S.subj.filter(s=>s.id!=id);open=null;save();toast("Папка удалена")}})}
+ if(d.p){sub(d.p).att[tk()]="p";save()}if(d.n){sub(d.n).att[tk()]="n";save()}
+ if(d.hx){S.habits=S.habits.filter(h=>h.id!=d.hx);save()}if(d.ix){S.ideas=S.ideas.filter(i=>i.id!=d.ix);save()}
+ if(t.closest(".tabs")&&d.t)go(d.t);
+ if(t.id=="wp"){wk--;render()}if(t.id=="wn"){wk++;render()}if(t.id=="wt"){wk=0;render()}
+ const f=t.closest("[data-f]");if(f){open=open==f.dataset.f?null:+f.dataset.f;render()}});
+document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
+ if(d.c){S.tasks.find(x=>x.id==d.c).done=t.checked;save();if(t.checked){celebrate(`[data-c="${d.c}"]`);toast("Задача выполнена ✓")}}
+  if(t.id=="sd"&&t.value){S.start=t.value;save()}
+ if(d.i){S.ideas.find(x=>x.id==d.i).done=t.checked;save();if(t.checked)celebrate(`[data-i="${d.i}"]`)}
+ if(d.h){const h=S.habits.find(x=>x.id==d.h);if(t.checked)h.days[tk()]=1;else delete h.days[tk()];save();if(t.checked){celebrate(`[data-h="${d.h}"]`);toast("Привычка отмечена 🔥")}}
+ if(d.g){const v=+t.value;if(v>0&&v<=100){sub(d.g).grades.push(v);save()}}});
+document.addEventListener("focusout",e=>{const r=e.target.dataset?.r;if(r){S.routine[+r[0]][+r[1]]=e.target.textContent.trim();persist()}});
+document.addEventListener("keydown",e=>{if(e.key=="Enter"&&e.target.dataset?.f)e.target.click()});
+document.addEventListener("submit",e=>{e.preventDefault();const id=e.target.id,n=Date.now();
+ if(id=="cf"){const q=$("#ci").value.trim();e.target.reset();if(q)ask(q);return}
+ if(id=="tf")S.tasks.push({id:n,text:$("#ti").value.trim(),date:tk(),done:false});
+ if(id=="af")S.subj.push({id:n,name:$("#an").value.trim(),files:[],att:{},grades:[]});
+ if(id=="ff")sub(open).files.push({n:$("#fn").value.trim(),u:$("#fu").value.trim()});
+ if(id=="hf")S.habits.push({id:n,name:$("#hn").value.trim(),days:{}});
+ if(id=="idf")S.ideas.push({id:n,text:$("#idn").value.trim(),done:false});
+ if(id=="if"){const a=Math.max(1,Math.floor(+$("#ia").value));S.income.push({d:tk().slice(5).split("-").reverse().join("."),a,s:$("#is").value.trim()})}
+ e.target.reset();save();
+if(id=="tf")toast("Задача добавлена");if(id=="hf")enter(`[data-h="${n}"]`);if(id=="idf")enter(`[data-i="${n}"]`);if(id=="if"){enter("#inl .it:first-child");glow()}});
+$("#ms").onclick=()=>{const a=Math.floor(+$("#mi").value);if(!(a>0))return;S.income.push({d:tk().slice(5).split("-").reverse().join("."),a,s:"Доход"});$("#mi").value="";save();toast("Доход добавлен 💸");enter("#inl .it:first-child");glow()};
+$("#ds").onclick=()=>{S.diary[tk()]={a:$("#d1").value,b:$("#d2").value,c:$("#d3").value};save();toast("Запись в дневнике сохранена")};
+// ✦ Toast (#056): toast("Текст") — показать уведомление в правом нижнем углу
+function toast(msg,ms=1800){let box=$("#toasts");if(!box){box=document.createElement("div");box.id="toasts";box.setAttribute("role","status");box.setAttribute("aria-live","polite");document.body.append(box)}
+ const t=document.createElement("div");t.className="toast";
+ t.innerHTML='<i><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span></span><b class="tb"></b>';
+ t.querySelector("span").textContent=msg; // textContent, а не innerHTML: текст задачи не сможет «стать кодом»
+ t.querySelector(".tb").style.animationDuration=ms+"ms";box.append(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add("show")));
+ setTimeout(()=>{t.classList.add("hide");setTimeout(()=>t.remove(),400)},350+ms)}
+function pad(v){return String(v).padStart(2,"0")}
+function PT(){return[...Array(8)].map((_,i)=>{const m=480+i*110;return pad(m/60|0)+":"+pad(m%60)})}
+function mn(t){const a=t.split(":");return+a[0]*60+ +a[1]}
+function hm(m){return pad(m/60|0)+":"+pad(m%60)}
+function ptm(p){const s=S.pt[p-1]||"08:00";return s+"–"+hm(mn(s)+90)}
+function dur(m){return m>=60?(m/60|0)+" ч "+(m%60)+" мин":m+" мин"}
+function moveInd(){const a=$(".tabs .on"),i=$("#ind");if(a&&i){i.style.width=a.offsetWidth+"px";i.style.transform="translateX("+a.offsetLeft+"px)";const tb=a.parentElement;tb.scrollTo({left:a.offsetLeft-(tb.clientWidth-a.offsetWidth)/2,behavior:calm?"auto":"smooth"})}} // только вкладки, страница остаётся на месте
+function nextInfo(n){const nm=n.getHours()*60+n.getMinutes(),T=dayE(tk()),a=$("#alert"),st=x=>mn(S.pt[x[1]-1]);let txt="",al="";
+ const cur=T.find(x=>st(x)<=nm&&nm<st(x)+90),nx=T.find(x=>st(x)>nm);
+ if(cur)txt=`Идёт ${cur[1]}-я пара: ${cur[2]}, ещё ${dur(st(cur)+90-nm)}.`;
+ else if(nx){const d=st(nx)-nm;txt=`Следующая пара: ${nx[1]}-я в ${S.pt[nx[1]-1]} · ${nx[2]} · через ${dur(d)}.`;if(d<=15)al=`Пара начнётся через ${d} мин: ${nx[2]}, ${nx[5]}.`}
+ else{const t2=dayE(fmt(addD(n,1)));txt=(T.length?"Сегодня пары закончились. ":"Сегодня пар нет. ")+(t2.length?`Завтра: ${t2.length}, первая в ${S.pt[t2[0][1]-1]} — ${t2[0][2]}.`:"Завтра пар нет.")}
+ $("#nx").textContent=txt;a.hidden=!al;a.textContent=al}
+let cu=0;function countUp(){if(cu)return;cu=1;mnyShown=0;mnyTo=-1;tweenMoney(S.money,2450)}
+const dueIn=c=>Math.round((addD(new Date((c.last||tk())+"T12:00"),c.last?c.every:0)-new Date(tk()+"T12:00"))/864e5);
+function render2(){const now=tk(),req=S.cfg.req;
+ $("#rq").value=req;
+ $("#ptw").innerHTML=S.pt.map((t,i)=>`<label class="pt">${i+1}-я<input type="time" value="${t}" data-pt="${i}"></label>`).join("");
+ $("#jl").innerHTML=SUBJ.map(n=>{const L=SCH.filter(x=>x[2]==n).sort((a,b)=>a[0].localeCompare(b[0])||a[1]-b[1]),k=x=>x[0]+"|"+x[1],held=L.filter(x=>x[0]<=now),
+  p=held.filter(x=>S.at[k(x)]=="p").length,m=held.filter(x=>S.at[k(x)]=="n").length,mk=p+m,left=Math.max(0,Math.floor(L.length*(100-req)/100)-m),need=Math.max(0,Math.ceil(L.length*req/100)-p),g=S.subj.find(s=>s.name==n);
+  const av=g&&g.grades.length?(g.grades.reduce((a,x)=>a+x,0)/g.grades.length).toFixed(1):"—";
+  return`<div class="jb"><div class="row sp"><b class="serif" style="font-size:21px">${esc(n)}</b><span class="m">всего ${L.length} · прошло ${held.length} · отмечено ${mk}</span></div><div class="m">был ${p} · пропусков ${m} · посещаемость ${mk?Math.round(p/mk*100):0}% · можно пропустить ещё ${left} · нужно посетить ещё ${need}</div><div class="sqs">${L.map(x=>`<button class="sq ${S.at[k(x)]||""}" data-sq="${k(x)}" ${x[0]>now?"disabled":""} title="${x[0]}, ${x[1]}-я пара">${x[0].slice(8)}.${x[0].slice(5,7)}</button>`).join("")}</div>${g?`<div class="row"><span class="m">Оценки: средний балл ${av}</span><input type="number" min="1" max="100" placeholder="Оценка" data-g="${g.id}" style="width:90px"></div>`:""}</div>`}).join("");
+ $("#kg").value=S.kc.g;$("#kt").value=S.kc.t;$("#kb").value=S.kc.b;
+ const e=S.eat[now]||0,t=+S.kc.t||0;$("#kbar").style.width=t?Math.min(100,e/t*100)+"%":"0%";$("#kinfo").textContent=t?`Съедено ${e} из ${t} ккал, осталось ${Math.max(0,t-e)}.`:"Введи цель по калориям на сегодня.";
+ {const a=S.prod.reduce((s,x)=>s+(x.p||0),0),b=S.prod.filter(x=>x.got).reduce((s,x)=>s+(x.p||0),0);$("#pls").textContent=S.prod.length?`Итого ${a} ₽ · куплено на ${b} ₽`:""}
+  $("#pl").innerHTML=S.prod.length?S.prod.map(x=>`<div class="it ${x.got?"done":""}"><label class="cb"><input type="checkbox" data-pb="${x.id}" ${x.got?"checked":""} aria-label="Куплено"><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.8 3.8L17.5 9"/></svg></label><span class="g">${esc(x.n)}</span><span class="m">${x.p?x.p+" ₽":""}</span><button class="x" data-px="${x.id}" aria-label="Удалить">✕</button></div>`).join(""):'<p class="empty">Добавь продукты для своего рациона.</p>';
+ $("#hl").innerHTML=S.chores.map(c=>{const d=dueIn(c);return`<div class="it"><span class="g"><b>${esc(c.name)}</b><br><span class="m">каждые ${c.every} дн. · ${d<=0?"пора сегодня":"через "+d+" дн."}</span></span><button data-cd="${c.id}">Сделано</button><button class="x" data-cx="${c.id}" aria-label="Удалить">✕</button></div>`}).join("");
+ const dd=S.chores.filter(c=>dueIn(c)<=0);$("#hdue").hidden=!dd.length;$("#hdue").innerHTML=dd.length?"<h3>Дела по дому</h3>"+dd.map(c=>`<div class="it"><span class="g">${esc(c.name)}</span><button data-cd="${c.id}">Сделано</button></div>`).join(""):"";
+ countUp();moveInd()}
+document.addEventListener("click",e=>{const d=e.target.dataset||{};
+ if(d.sq){const v=S.at[d.sq];if(!v)S.at[d.sq]="p";else if(v=="p")S.at[d.sq]="n";else delete S.at[d.sq];save()}
+ if(d.cd){S.chores.find(c=>c.id==d.cd).last=tk();save()}
+ if(d.cx){S.chores=S.chores.filter(c=>c.id!=d.cx);save()}
+ if(d.px){S.prod=S.prod.filter(x=>x.id!=d.px);save()}
+ if(e.target.id=="kmeal")meal()});
+document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
+ if(d.pt!==undefined&&t.value){S.pt[+d.pt]=t.value;save()}
+ if(t.id=="rq"){S.cfg.req=Math.max(0,Math.min(100,+t.value||0));save()}
+ if(["kg","kt","kb"].includes(t.id)){S.kc={g:$("#kg").value,t:$("#kt").value,b:$("#kb").value};save()}
+ if(d.pb){S.prod.find(x=>x.id==d.pb).got=t.checked;save()}});
+document.addEventListener("submit",e=>{const id=e.target.id,n=Date.now();if(!["cf2","kf","pf"].includes(id))return;e.preventDefault();e.stopImmediatePropagation();
+ if(id=="cf2")S.chores.push({id:n,name:$("#cn").value.trim(),every:Math.max(1,+$("#ce").value),last:null});
+ if(id=="kf")S.eat[tk()]=(S.eat[tk()]||0)+Math.max(1,+$("#ke").value);
+ if(id=="pf")S.prod.push({id:n,n:$("#pn").value.trim(),p:+$("#pp").value||0,got:false});
+ e.target.reset();save()},true);
+async function meal(){const o=$("#mealout");o.hidden=false;
+ if(!AI){o.textContent="В демо-версии рацион не составляется: помощник отключён.";return}
+ if(!S.kc.t){o.textContent="Сначала введи цель по калориям.";return}
+ o.textContent="Составляю…";
+ const q=`Составь рацион на сегодня для студента. Цель: ${S.kc.g}, ${S.kc.t} ккал, бюджет ${S.kc.b||"минимальный"} ₽ в день. Продукты из обычного магазина, по приёмам пищи с калориями и белком, плюс 1–2 простых рецепта. Цены давай только примерные и помечай это. Мои продукты: ${S.prod.map(p=>p.n).join(", ")||"пока нет"}. Коротко, без воды.`;
+ try{const r=await AI([{role:"user",content:q}],{cache:false,onText:({text})=>{o.textContent=text}});o.textContent=r.text}catch(x){o.textContent="Не получилось. Попробуй ещё раз."}}
+
+go("today");render();clock();
+// ✦ Живое небо. Основа — Motion Prompt #095 Animated gradient · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#095
+// Четыре мягких пятна света ходят по эллипсам (радиусы и стартовые углы из спецификации #095),
+// поверх — мерцающие звёзды и изредка падающая звезда. Картинка зависит только от времени u.
+(()=>{const cv=$("#sky"),k=cv.getContext("2d");
+ const CYCLE=40;   // секунд на круг пятен. В #095 — 4.8 с, для фона приложения замедлили, чтобы не отвлекало
+ const SPIN=600;   // секунд на полный оборот неба (звёзды медленно кружат вокруг точки над экраном, как вокруг Полярной звезды)
+ const BLOBS=[["#1d3f9e",150,60,230,70,30,0],["#2b2a86",380,40,210,60,40,2.1],["#123c7a",330,150,240,80,30,4.2],["#3a2f8f",90,170,200,50,35,1.0]];
+ let W=0,H=0,stars=[];
+ const rnd=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(42); // одинаковое небо при каждом запуске
+ function size(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;k.setTransform(d,0,0,d,0,0);
+  const R=Math.hypot(W,H),n=Math.round(Math.PI*R*R/9000);stars=[];
+  for(let i=0;i<n;i++)stars.push([R*Math.sqrt(rnd()),rnd()*6.283,rnd()<.08?1.6:.5+rnd()*.8,rnd()*6.28,2+rnd()*4])} // [радиус, угол, размер, фаза, период мерцания]
+ function draw(u){const a=2*Math.PI*u/CYCLE,sx=W/539,sy=H/208,sr=Math.max(W,H)/539;
+  k.globalAlpha=1;k.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--sky")||"#050817";k.fillRect(0,0,W,H);
+  for(const[c,x0,y0,r,ax,ay,ph]of BLOBS){const o=(ax+ay)/2*sr,x=x0*sx+o*Math.cos(a+ph),y=y0*sy*.6+o*Math.sin(a+ph),R=r*sr;
+   const g=k.createRadialGradient(x,y,0,x,y,R);g.addColorStop(0,c);g.addColorStop(1,"rgba(5,8,23,0)");k.globalAlpha=.45;k.fillStyle=g;k.fillRect(0,0,W,H)}
+  const px=W/2,py=-H*.15,rot=2*Math.PI*u/SPIN;k.fillStyle="#fff";
+  for(const[d,an,r,ph,per]of stars){const x=px+d*Math.cos(an+rot),y=py+d*Math.sin(an+rot);if(x<-3||x>W+3||y<-3||y>H+3)continue;
+   k.globalAlpha=.25+.55*(.5+.5*Math.sin(2*Math.PI*u/per+ph));k.beginPath();k.arc(x,y,r,0,6.283);k.fill()}
+  const sh=u%11;if(sh<.9){const p=sh/.9,x=W*(.15+.5*p),y=H*(.08+.18*p);const g=k.createLinearGradient(x,y,x-120,y-44);
+   g.addColorStop(0,"rgba(255,255,255,.9)");g.addColorStop(1,"rgba(255,255,255,0)");k.globalAlpha=Math.sin(Math.PI*p);k.strokeStyle=g;k.lineWidth=1.5;k.beginPath();k.moveTo(x,y);k.lineTo(x-120,y-44);k.stroke()}
+  k.globalAlpha=1}
+ size();addEventListener("resize",()=>{size();if(calm)draw(0)});
+ if(calm){draw(0);return}             // «уменьшить движение» — неподвижное небо
+ const t0=performance.now();
+ (function loop(t){requestAnimationFrame(loop);if(document.hidden)return;draw((t-t0)/1000)})(t0); // каждый кадр экрана (60/120 к/с), на скрытой вкладке не рисуем
+})();
+
+// ✦ #154 Spotlight: координаты курсора внутри каждой видимой карточки -> CSS-переменные --mx/--my
+if(matchMedia("(hover:hover) and (pointer:fine)").matches&&!calm){let px=-1e4,py=-1e4,raf=0;
+ const upd=()=>{raf=0;document.querySelectorAll(".hero, .pane.on .card").forEach(c=>{const r=c.getBoundingClientRect(),x=px-r.left,y=py-r.top,
+  near=x>-120&&y>-120&&x<r.width+120&&y<r.height+120;c.style.setProperty("--spot",near?1:0);if(near){c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px")}})};
+ addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY;if(!raf)raf=requestAnimationFrame(upd)},{passive:true});
+ addEventListener("scroll",()=>{if(!raf)raf=requestAnimationFrame(upd)},{passive:true});
+ document.addEventListener("pointerleave",()=>{px=py=-1e4;upd()})}
+
+// ✦ #084 Magnetic button: в радиусе 110px кнопка тянется к курсору (35% смещения, 18% пути за кадр),
+//   уходя — возвращается за 1.1 с с упругим elastic.out(1, 0.3). Только главные кнопки и только мышкой.
+if(matchMedia("(hover:hover) and (pointer:fine)").matches&&!calm){const R=110,el=x=>Math.pow(2,-10*x)*Math.sin((x-.075)*2*Math.PI/.3)+1;
+ const st=new Map();let mx=-1e4,my=-1e4,run=0;
+ const sel='#ms, form.row > button, #ovb';
+ function tick(t){run=0;let busy=false;
+  document.querySelectorAll(sel).forEach(b=>{const s=st.get(b)||{x:0,y:0,rel:null};st.set(b,s);const r=b.getBoundingClientRect();
+   const ox=r.left+r.width/2-s.x,oy=r.top+r.height/2-s.y,dx=mx-ox,dy=my-oy,inside=r.width&&Math.hypot(dx,dy)<R;
+   if(inside){s.rel=null;s.x+=(dx*.35-s.x)*.18;s.y+=(dy*.35-s.y)*.18;busy=true}
+   else if(s.x||s.y){if(!s.rel)s.rel={t:t,x:s.x,y:s.y};const k=Math.min(1,(t-s.rel.t)/1100),f=1-el(k);s.x=s.rel.x*f;s.y=s.rel.y*f;if(k>=1){s.x=s.y=0;s.rel=null}else busy=true}
+   b.style.translate=(s.x||s.y)?`${s.x.toFixed(2)}px ${s.y.toFixed(2)}px`:""});
+  if(busy)run=requestAnimationFrame(tick)}
+ addEventListener("pointermove",e=>{mx=e.clientX;my=e.clientY;if(!run)run=requestAnimationFrame(tick)},{passive:true})}
+
+// ✦ #085 Ripple: волна из точки нажатия на любой кнопке
+document.addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(!b||calm)return;const r=b.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,
+ R=Math.hypot(Math.max(x,r.width-x),Math.max(y,r.height-y)),s=document.createElement("span");s.className="rip";
+ s.style.cssText=`width:${R*2}px;height:${R*2}px;left:${x-R}px;top:${y-R}px`;b.append(s);setTimeout(()=>s.remove(),850)});
+
+// ✦ Меню: подсветка под курсором + «прилипшее» состояние при прокрутке
+(()=>{const tb=$(".tabs"),hv=$("#hov");if(!tb||!hv)return;
+ tb.addEventListener("pointerover",e=>{const b=e.target.closest("button");if(!b)return;hv.style.width=b.offsetWidth+"px";hv.style.transform=`translateX(${b.offsetLeft}px)`});
+ const st=()=>tb.classList.toggle("stuck",tb.getBoundingClientRect().top<=14&&scrollY>40);addEventListener("scroll",st,{passive:true});st()})();
+
+// ✦ ОРБ: «биолюминесцентная» сфера из тысяч точек — как Particle Sphere Visual из design-refs/auros.md.
+// Каждая точка знает своё место на сфере и на кубе; сфера плавно перетекает в куб и обратно
+// (Motion Prompt #012 Shape morph — точки с одинаковым номером плавно переезжают; #015 Particles).
+// Ближние точки ярче, дальние тусклее, по краю — лавандовый отсвет (акцент Auros #fde9ff).
+// Motion Prompt · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/
+(()=>{const cv=$("#orb"),k=cv.getContext("2d");let W,H,R,cx,cy,P=[];
+ const CYC=18; // секунд на полный цикл: сфера → куб → сфера
+ function build(n){P=[];const ga=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,r=Math.sqrt(1-y*y),th=ga*i,x=Math.cos(th)*r,z=Math.sin(th)*r;
+   const a=[Math.abs(x),Math.abs(y),Math.abs(z)].sort((p,q)=>q-p),m=a[0]; // та же точка, «натянутая» на куб
+   const edge=Math.max(0,1-(a[0]-a[1])/(.1*a[0])); // 1 — точка лежит на ребре куба
+   P.push([x,y,z,x/m*.8,y/m*.8,z/m*.8,Math.random()*6.283,.8+Math.random()*1.1,edge])}}
+ function size(){const d=Math.min(2,devicePixelRatio||1),mob=innerWidth<760;W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;k.setTransform(d,0,0,d,0,0);
+  R=mob?W*.2:Math.min(W,H)*.2;cx=mob?W*.8:W*.78;cy=mob?H*.1:H*.22;build(mob?1800:3400)}
+ const sm=x=>x*x*(3-2*x),cl=x=>Math.max(0,Math.min(1,x));
+ // ✦ Реакция на курсор: сфера поворачивается следом за мышкой, слегка сдвигается к ней (параллакс),
+ //   а точки рядом с курсором разбегаются в стороны. На телефоне то же самое — пальцем.
+ let mx=-1e4,my=-1e4,tx=0,ty=0,ax=0,ay=0,hv=0,near=0;
+ const aim=(x,y)=>{mx=x;my=y;tx=(x/W-.5)*2;ty=(y/H-.5)*2;near=1};
+ addEventListener("pointermove",e=>aim(e.clientX,e.clientY),{passive:true});
+ addEventListener("touchmove",e=>{const q=e.touches[0];if(q)aim(q.clientX,q.clientY)},{passive:true});
+ document.addEventListener("pointerleave",()=>{tx=ty=0;near=0});addEventListener("touchend",()=>{tx=ty=0;near=0});
+ function draw(u){k.clearRect(0,0,W,H);const tc=u%CYC;
+  ax+=(tx-ax)*.06;ay+=(ty-ay)*.06;hv+=(near-hv)*.08;                       // плавно догоняем курсор
+  const ox=cx+ax*18,oy=cy+ay*12,Rr=R*.55;                                   // центр с параллаксом, радиус «отталкивания»
+  // 0–6.5 сфера · 6.5–8.3 в куб · 8.3–15.2 куб · 15.2–17 обратно
+  const mo=tc<6.5?0:tc<8.3?sm((tc-6.5)/1.8):tc<15.2?1:tc<17?1-sm((tc-15.2)/1.8):0;
+  const ry=u*.22+ax*.8,rx=.42+Math.sin(u*.17)*.12+ay*.55,cy1=Math.cos(ry),sy1=Math.sin(ry),cx1=Math.cos(rx),sx1=Math.sin(rx);
+  // мягкое свечение позади
+  const g=k.createRadialGradient(ox,oy,0,ox,oy,R*1.9);g.addColorStop(0,"rgba(70,110,255,.16)");g.addColorStop(.5,"rgba(60,80,200,.06)");g.addColorStop(1,"rgba(40,60,160,0)");
+  k.fillStyle=g;k.fillRect(ox-R*2,oy-R*2,R*4,R*4);k.globalCompositeOperation="lighter";
+  for(const p of P){const br=1+.035*Math.sin(u*1.3+p[6]);let x=(p[0]+(p[3]-p[0])*mo)*br,y=(p[1]+(p[4]-p[1])*mo)*br,z=(p[2]+(p[5]-p[2])*mo)*br;
+   let X=x*cy1+z*sy1,Z=-x*sy1+z*cy1,Y=y*cx1-Z*sx1;Z=y*sx1+Z*cx1;           // поворот: вокруг Y, потом вокруг X
+   const f=3.2/(Z+3.4);let sx=ox+X*R*f,sy=oy+Y*R*f;
+   if(hv>.01){const dx=sx-mx,dy=sy-my,dd=Math.hypot(dx,dy);if(dd<Rr&&dd>.1){const pu=Math.pow(1-dd/Rr,2)*R*.28*hv;sx+=dx/dd*pu;sy+=dy/dd*pu}}
+   const dep=(1-Z)/2,rim=Math.min(1,Math.hypot(X,Y));     // dep: 1 — ближе к нам
+   const tw=.7+.3*Math.sin(u*2+p[6]*3),ed=p[8]*mo,a=Math.min(1,(.22+.78*dep*dep)*tw+ed*.6),s=p[7]*(.6+.6*dep)*(1+ed*.6);
+   const e=rim>.86&&dep>.25?(rim-.86)/.14:0;                                   // край сферы — лавандовый отсвет
+   k.fillStyle=e>.2?`rgba(253,233,255,${a})`:ed>.4||dep>.6?`rgba(220,232,255,${a})`:`rgba(110,150,255,${a})`;k.fillRect(sx-s/2,sy-s/2,s,s)}
+  k.globalCompositeOperation="source-over"}
+ size();addEventListener("resize",()=>{size();if(calm)draw(3)});
+ if(calm){draw(3);return}
+ const t0=performance.now();(function loop(t){requestAnimationFrame(loop);if(!document.hidden)draw((t-t0)/1000)})(t0)})();
+
+// ✦ confirmBox("Вопрос") — красивое окно подтверждения вместо серого системного confirm(). Отвечает true/false.
+function confirmBox(text,yes="Удалить"){return new Promise(res=>{const m=document.createElement("div");m.className="md";
+ m.innerHTML='<div class="md-w" role="alertdialog" aria-modal="true" aria-labelledby="mdt"><p class="md-t" id="mdt"></p><div class="md-b"><button type="button" class="md-no">Отмена</button><button type="button" class="md-yes"></button></div></div>';
+ m.querySelector(".md-t").textContent=text;m.querySelector(".md-yes").textContent=yes;document.body.append(m);const prev=document.activeElement;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add("on")));m.querySelector(".md-no").focus();
+ const key=e=>{if(e.key=="Escape")done(false)};addEventListener("keydown",key);
+ function done(v){removeEventListener("keydown",key);m.classList.remove("on");m.classList.add("off");setTimeout(()=>{m.remove();prev?.focus?.()},calm?0:300);res(v)}
+ m.addEventListener("click",e=>{if(e.target==m)done(false)});m.querySelector(".md-no").onclick=()=>done(false);m.querySelector(".md-yes").onclick=()=>done(true)})}
+setInterval(clock,1000);pill("Демо: данные хранятся только на этом устройстве",0);
+$("#aist").textContent="В демо-версии помощник отключён.";
+
+/* ✦ Обзор вкладок: стопка карточек в перспективе, как переключатель вкладок в Safari */
+const ovb=document.createElement("button"),ov=document.createElement("div");ovb.id="ovb";ov.id="ov";ov.hidden=true;ovb.setAttribute("aria-label","Все вкладки");
+ovb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="7" y="3.5" width="13" height="10" rx="2.5"/><rect x="4" y="9.5" width="13" height="10.5" rx="2.5" fill="var(--sheet)"/></svg>';document.body.append(ov,ovb);
+function openOv(){const cur=document.querySelector(".pane.on"),PW=cur.offsetWidth,W=Math.min(innerWidth*.88,520);ov.innerHTML="";
+ tabs.forEach(([id,name],i)=>{const c=document.getElementById(id).cloneNode(true),b=document.createElement("button");
+  c.removeAttribute("id");c.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));c.classList.add("on");
+  b.className="oc"+(id==cur.id?" cur":"");b.style.cssText=`--i:${i};width:${W}px`;b.setAttribute("aria-label",name);
+  b.innerHTML=`<span class="ot">${esc(name)}</span><span class="ob"><div class="pv" style="width:${PW}px;transform:scale(${W/PW})"></div></span>`;
+  b.querySelector(".pv").append(c);b.onclick=()=>{b.classList.add("pick");ov.classList.remove("show");setTimeout(()=>{ov.hidden=true;go(id)},calm?0:420)};ov.append(b)});
+ ov.hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{ov.classList.add("show");ov.querySelector(".cur")?.scrollIntoView({block:"center"})}))}
+const closeOv=()=>{ov.classList.remove("show");setTimeout(()=>ov.hidden=true,calm?0:400)};
+ovb.onclick=()=>ov.hidden?openOv():closeOv();ov.onclick=e=>{if(e.target===ov)closeOv()};
+document.addEventListener("keydown",e=>{if(e.key=="Escape"&&!ov.hidden)closeOv()});
+/* заставка при запуске: один раз за сеанс */
+
+// ✦ ВХОД (демо). Почта и пароль никуда не отправляются и не сохраняются — запоминаем только сам факт входа.
+const AUTH="polaris_demo_auth";
+(()=>{const au=$("#auth");let ok=false;try{ok=localStorage.getItem(AUTH)==="1"}catch(e){}
+ $("#logout").onclick=()=>{try{localStorage.removeItem(AUTH);sessionStorage.removeItem("sp")}catch(e){}location.reload()};
+ if(ok||!au){au?.remove();return}au.hidden=false;document.documentElement.classList.add("locked");
+ const f=$("#auf"),e=$("#ae"),p=$("#ap"),fe=$("#fe"),fp=$("#fp"),em=$("#em"),pm=$("#pm"),go=$("#ago"),re=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+ const msg=(el,txt,good)=>{el.textContent=txt;el.className="fmsg"+(txt?" show":"")+(good?" okm":"")};
+ const checkMail=()=>{const v=e.value.trim();if(!v){fe.classList.remove("bad","good");msg(em,"");return false}
+  const g=re.test(v);fe.classList.toggle("good",g);fe.classList.toggle("bad",!g);msg(em,g?"Всё верно":"Похоже, в почте опечатка",g);return g};
+ e.addEventListener("input",checkMail);p.addEventListener("input",()=>{if(p.value.length>=4){fp.classList.remove("bad");msg(pm,"")}});
+ $("#aeye").onclick=()=>{const s=p.type=="password";p.type=s?"text":"password";$("#aeye").setAttribute("aria-label",s?"Скрыть пароль":"Показать пароль")};
+ const nudge=el=>{el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")};
+ function enter(){try{localStorage.setItem(AUTH,"1")}catch(err){}e.value="";p.value="";au.classList.add("out");
+  setTimeout(()=>{au.remove();document.documentElement.classList.remove("locked");document.querySelector(".top").classList.add("reveal")},calm?0:750)}
+ f.addEventListener("submit",ev=>{ev.preventDefault();ev.stopPropagation(); // stopPropagation — чтобы общий обработчик форм не трогал эту форму
+  const g=checkMail();if(!g){if(!e.value.trim())msg(em,"Введи почту");fe.classList.add("bad");nudge(fe);e.focus();return}
+  if(p.value.length<4){fp.classList.add("bad");msg(pm,"Пароль — минимум 4 символа");nudge(fp);p.focus();return}
+  go.classList.add("load");setTimeout(()=>{go.classList.replace("load","done");go.querySelector(".gl").textContent="Готово"},calm?0:1200);setTimeout(enter,calm?0:1900)});
+ $("#aguest").onclick=enter})();
+(()=>{const sp=document.getElementById("sp");let seen=0;try{seen=sessionStorage.getItem("sp");sessionStorage.setItem("sp","1")}catch(e){}
+ const top=document.querySelector(".top");if(seen||calm){sp.remove();if(!$("#auth"))top.classList.add("reveal");return}
+ // звёзды летят на нас: каждая точка (x, y) на глубине z рисуется как штрих от прошлой проекции к новой
+ const cv=$("#warp"),k=cv.getContext("2d"),d=Math.min(2,devicePixelRatio||1);let W,H;const st=[];
+ function sz(){W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;k.setTransform(d,0,0,d,0,0)}sz();addEventListener("resize",sz);
+ for(let i=0;i<520;i++)st.push({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random()});
+ let t0=performance.now(),prev=t0,exitAt=0,done=false;
+ const speed=t=>exitAt?1.2+Math.min(4,(t-exitAt)/180):t<400?1.6:t<1500?1.6-1.45*Math.pow((t-400)/1100,.6):.15; // быстро → тормозим → медленный дрейф → ускорение на выходе
+ (function frame(now){if(done)return;requestAnimationFrame(frame);const dt=Math.min(.05,(now-prev)/1000),v=speed(now-t0);prev=now;
+  k.fillStyle="rgba(2,4,12,.55)";k.fillRect(0,0,W,H);const cx=W/2,cy=H/2,f=Math.min(W,H)*.6;
+  for(const s of st){const pz=s.z;s.z-=v*dt;if(s.z<=.02){s.x=Math.random()*2-1;s.y=Math.random()*2-1;s.z=1;continue}
+   const x1=cx+s.x/pz*f,y1=cy+s.y/pz*f,x2=cx+s.x/s.z*f,y2=cy+s.y/s.z*f,a=Math.min(1,(1-s.z)*1.3);
+   k.strokeStyle=`rgba(${190+65*(1-s.z)|0},${210+45*(1-s.z)|0},255,${a})`;k.lineWidth=Math.max(.6,(1-s.z)*2.2);k.beginPath();k.moveTo(x1,y1);k.lineTo(x2,y2);k.stroke()}})(t0);
+ let left=false;function leave(){if(left)return;left=true;exitAt=performance.now()-t0;sp.classList.add("gone");if(!$("#auth"))top.classList.add("reveal");setTimeout(()=>{done=true;sp.remove()},950)}
+ setTimeout(leave,3400);sp.addEventListener("click",leave);addEventListener("keydown",leave,{once:true})})();
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>

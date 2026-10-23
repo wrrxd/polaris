@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#050817">
+<title>Политика конфиденциальности · Polaris</title>
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050817;--tx:#f4f6fa;--mu:#8a909c;--glow-rgb:96,140,255;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 480px at 80% -10%,#1a2540,transparent 60%),var(--bg);color:var(--tx);font:400 16px/1.65 Manrope,system-ui,sans-serif}
+.wrap{max-width:720px;margin:auto;padding:calc(28px + env(safe-area-inset-top,0px)) 20px calc(60px + env(safe-area-inset-bottom,0px))}
+.back{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9999px;border:1px solid rgba(255,255,255,.12);background:rgba(18,22,34,.5);color:#fff;text-decoration:none;font-size:14px;transition:background .25s}
+.back:hover{background:rgba(255,255,255,.08)}
+.mark{display:flex;align-items:center;gap:12px;margin:40px 0 18px}
+.star{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px 3px rgba(var(--glow-rgb),.9),0 0 30px 10px rgba(var(--glow-rgb),.35)}
+.word{font:300 14px/1 Montserrat,sans-serif;letter-spacing:.34em}
+h1{margin:0 0 8px;font:200 clamp(28px,7vw,52px)/1.08 Montserrat,sans-serif;letter-spacing:-.02em;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
+.upd{margin:0 0 36px;font:500 11px/1.4 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+h2{margin:36px 0 10px;font:500 20px/1.25 Montserrat,sans-serif;letter-spacing:-.01em}
+p,li{color:rgba(255,255,255,.78)}
+ul{padding-left:20px}
+a{color:#fff;text-underline-offset:3px}
+.card{margin:28px 0;padding:18px 20px;border-radius:16px;border:1px solid rgba(255,255,255,.09);background:rgba(18,22,34,.5)}
+.card p{margin:0}
+footer{margin-top:48px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:var(--mu)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><main class="wrap">
+<a class="back" href="./">← Вернуться в Polaris</a>
+<div class="mark" aria-hidden="true"><i class="star"></i><span class="word">POLARIS</span></div>
+<h1>Политика конфиденциальности</h1>
+<p class="upd">Обновлено 23 октября 2026 · демо-версия</p>
+
+<div class="card"><p><b>Коротко:</b> всё, что ты вводишь в Polaris, хранится только в браузере на твоём устройстве. Мы не собираем, не продаём и не передаём твои данные.</p></div>
+
+<h2>Кто отвечает за сервис</h2>
+<p>Polaris — демо-проект Матвея Кутафина (My Assistant by Matvei Kutafin), сделанный для портфолио. По любым вопросам пиши в Telegram: <a href="https://t.me/rolqm" target="_blank" rel="noopener">@rolqm</a>.</p>
+
+<h2 id="data">Какие данные хранятся</h2>
+<ul>
+<li>Задачи, привычки, расписание, доход, записи дневника и настройки, которые ты вводишь сам.</li>
+<li>Отметка о том, что ты вошёл в демо.</li>
+</ul>
+<p>Всё это лежит в памяти браузера (localStorage) <b>на твоём устройстве</b>. На сервер ничего не отправляется, поэтому у нас нет доступа к этим данным.</p>
+
+<h2>Вход в демо</h2>
+<p>Почта и пароль на экране входа нужны только для демонстрации. Они <b>никуда не отправляются и не сохраняются</b>: после входа поля сразу очищаются, а в памяти остаётся только отметка «вошёл».</p>
+
+<h2>Сторонние сервисы</h2>
+<ul>
+<li><b>Google Fonts</b> — отсюда загружаются шрифты. При загрузке страницы браузер обращается к серверам Google, и они видят твой IP-адрес. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Политика Google</a>.</li>
+<li><b>GitHub Pages</b> — здесь размещён сайт. GitHub может вести технические журналы посещений (например, IP-адрес). <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Политика GitHub</a>.</li>
+</ul>
+<p>Мы не используем рекламу, аналитику и cookies для отслеживания.</p>
+
+<h2>Как удалить свои данные</h2>
+<ul>
+<li>Кнопка <b>«Выйти»</b> вверху приложения удаляет отметку о входе.</li>
+<li>Чтобы стереть всё, очисти данные сайта в настройках браузера (в Safari на iPhone: Настройки → Safari → Дополнения → Данные сайтов).</li>
+</ul>
+
+<h2>Изменения политики</h2>
+<p>Если Polaris станет полноценным сервисом с аккаунтами и сервером, эта политика будет обновлена до того, как изменится обработка данных. Дата обновления всегда указана вверху страницы.</p>
+
+<footer>© 2026 Polaris · My Assistant by Matvei Kutafin · Демо-версия для портфолио</footer>
+</main></body></html>
